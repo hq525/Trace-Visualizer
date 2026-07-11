@@ -1,4 +1,7 @@
 node_modules/
+dist/
 spike/package-lock.json
 .playwright-mcp/
 __pycache__/
+test-results/
+playwright-report/

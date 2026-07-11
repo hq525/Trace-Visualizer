@@ -1,0 +1,7 @@
+# Force LF everywhere so lint/format and golden fixtures behave identically on
+# Windows checkouts (fixture goldens are byte-accurate; CRLF would break them).
+* text=auto eol=lf
+*.png binary
+*.wasm binary
+*.woff binary
+*.woff2 binary
