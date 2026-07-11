@@ -1,0 +1,147 @@
+{
+  "language": "python",
+  "exception": {
+    "type": "requests.exceptions.ConnectionError",
+    "message": "HTTPConnectionPool(host='127.0.0.1', port=9): Max retries exceeded with url: /v1/prices?symbols=AAPL,MSFT (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=9): Failed to establish a new connection: [Errno 61] Connection refused\"))"
+  },
+  "frames": [
+    {
+      "rawPath": "/home/dev/app/s15_requests_connectionerror.py",
+      "line": 13,
+      "symbol": "<module>"
+    },
+    {
+      "rawPath": "/home/dev/app/s15_requests_connectionerror.py",
+      "line": 7,
+      "symbol": "get_prices"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/requests/api.py",
+      "line": 87,
+      "symbol": "get"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/requests/api.py",
+      "line": 71,
+      "symbol": "request"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/requests/sessions.py",
+      "line": 651,
+      "symbol": "request"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/requests/sessions.py",
+      "line": 784,
+      "symbol": "send"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/requests/adapters.py",
+      "line": 729,
+      "symbol": "send"
+    }
+  ],
+  "chained": {
+    "relation": "context",
+    "trace": {
+      "exception": {
+        "type": "urllib3.exceptions.MaxRetryError",
+        "message": "HTTPConnectionPool(host='127.0.0.1', port=9): Max retries exceeded with url: /v1/prices?symbols=AAPL,MSFT (Caused by NewConnectionError(\"HTTPConnection(host='127.0.0.1', port=9): Failed to establish a new connection: [Errno 61] Connection refused\"))"
+      },
+      "frames": [
+        {
+          "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/requests/adapters.py",
+          "line": 696,
+          "symbol": "send"
+        },
+        {
+          "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/urllib3/connectionpool.py",
+          "line": 842,
+          "symbol": "urlopen"
+        },
+        {
+          "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/urllib3/util/retry.py",
+          "line": 543,
+          "symbol": "increment"
+        }
+      ],
+      "chained": {
+        "relation": "cause",
+        "trace": {
+          "exception": {
+            "type": "urllib3.exceptions.NewConnectionError",
+            "message": "HTTPConnection(host='127.0.0.1', port=9): Failed to establish a new connection: [Errno 61] Connection refused"
+          },
+          "frames": [
+            {
+              "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/urllib3/connectionpool.py",
+              "line": 788,
+              "symbol": "urlopen"
+            },
+            {
+              "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/urllib3/connectionpool.py",
+              "line": 493,
+              "symbol": "_make_request"
+            },
+            {
+              "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/urllib3/connection.py",
+              "line": 500,
+              "symbol": "request"
+            },
+            {
+              "rawPath": "/opt/homebrew/Cellar/python@3.13/3.13.13_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/http/client.py",
+              "line": 1353,
+              "symbol": "endheaders"
+            },
+            {
+              "rawPath": "/opt/homebrew/Cellar/python@3.13/3.13.13_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/http/client.py",
+              "line": 1113,
+              "symbol": "_send_output"
+            },
+            {
+              "rawPath": "/opt/homebrew/Cellar/python@3.13/3.13.13_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/http/client.py",
+              "line": 1057,
+              "symbol": "send"
+            },
+            {
+              "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/urllib3/connection.py",
+              "line": 331,
+              "symbol": "connect"
+            },
+            {
+              "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/urllib3/connection.py",
+              "line": 219,
+              "symbol": "_new_conn"
+            }
+          ],
+          "chained": {
+            "relation": "cause",
+            "trace": {
+              "exception": {
+                "type": "ConnectionRefusedError",
+                "message": "[Errno 61] Connection refused"
+              },
+              "frames": [
+                {
+                  "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/urllib3/connection.py",
+                  "line": 204,
+                  "symbol": "_new_conn"
+                },
+                {
+                  "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/urllib3/util/connection.py",
+                  "line": 85,
+                  "symbol": "create_connection"
+                },
+                {
+                  "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/urllib3/util/connection.py",
+                  "line": 73,
+                  "symbol": "create_connection"
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

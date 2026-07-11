@@ -1,0 +1,54 @@
+{
+  "language": "python",
+  "exception": {
+    "type": "KeyError",
+    "message": "42"
+  },
+  "frames": [
+    {
+      "rawPath": "/home/dev/app/s11_django_view.py",
+      "line": 29,
+      "symbol": "<module>"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/django/test/client.py",
+      "line": 1127,
+      "symbol": "get"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/django/test/client.py",
+      "line": 475,
+      "symbol": "get"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/django/test/client.py",
+      "line": 671,
+      "symbol": "generic"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/django/test/client.py",
+      "line": 1090,
+      "symbol": "request"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/django/test/client.py",
+      "line": 805,
+      "symbol": "check_exception"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/django/core/handlers/exception.py",
+      "line": 55,
+      "symbol": "inner"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/django/core/handlers/base.py",
+      "line": 198,
+      "symbol": "_get_response"
+    },
+    {
+      "rawPath": "/home/dev/app/s11_django_view.py",
+      "line": 21,
+      "symbol": "order_detail"
+    }
+  ]
+}

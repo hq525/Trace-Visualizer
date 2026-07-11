@@ -1,0 +1,59 @@
+{
+  "language": "python",
+  "exception": {
+    "type": "ValueError",
+    "message": "invalid literal for int() with base 10: 'not-a-number'"
+  },
+  "frames": [
+    {
+      "rawPath": "/home/dev/app/s09_frozen_importlib.py",
+      "line": 11,
+      "symbol": "<module>"
+    },
+    {
+      "rawPath": "/home/dev/app/s09_frozen_importlib.py",
+      "line": 7,
+      "symbol": "load_plugin"
+    },
+    {
+      "rawPath": "/opt/homebrew/Cellar/python@3.13/3.13.13_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py",
+      "line": 88,
+      "symbol": "import_module"
+    },
+    {
+      "rawPath": "<frozen importlib._bootstrap>",
+      "line": 1395,
+      "symbol": "_gcd_import"
+    },
+    {
+      "rawPath": "<frozen importlib._bootstrap>",
+      "line": 1360,
+      "symbol": "_find_and_load"
+    },
+    {
+      "rawPath": "<frozen importlib._bootstrap>",
+      "line": 1331,
+      "symbol": "_find_and_load_unlocked"
+    },
+    {
+      "rawPath": "<frozen importlib._bootstrap>",
+      "line": 935,
+      "symbol": "_load_unlocked"
+    },
+    {
+      "rawPath": "<frozen importlib._bootstrap_external>",
+      "line": 1023,
+      "symbol": "exec_module"
+    },
+    {
+      "rawPath": "<frozen importlib._bootstrap>",
+      "line": 488,
+      "symbol": "_call_with_frames_removed"
+    },
+    {
+      "rawPath": "/home/dev/app/boom_on_import.py",
+      "line": 1,
+      "symbol": "<module>"
+    }
+  ]
+}

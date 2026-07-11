@@ -1,0 +1,28 @@
+2026-07-11T03:25:44.118437221Z stderr F Traceback (most recent call last):
+2026-07-11T03:25:44.118437221Z stderr F   File "/home/dev/app/s07_asyncio_chained.py", line 13, in refresh_symbol
+2026-07-11T03:25:44.118437221Z stderr F     return await fetch_quote(symbol)
+2026-07-11T03:25:44.118437221Z stderr F            ^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-07-11T03:25:44.118437221Z stderr F   File "/home/dev/app/s07_asyncio_chained.py", line 8, in fetch_quote
+2026-07-11T03:25:44.118437221Z stderr F     raise ConnectionResetError(f"feed dropped while fetching {symbol}")
+2026-07-11T03:25:44.118437221Z stderr F ConnectionResetError: feed dropped while fetching TSLA
+2026-07-11T03:25:44.118437221Z stderr F 
+2026-07-11T03:25:44.118437221Z stderr F The above exception was the direct cause of the following exception:
+2026-07-11T03:25:44.118437221Z stderr F 
+2026-07-11T03:25:44.118437221Z stderr F Traceback (most recent call last):
+2026-07-11T03:25:44.118437221Z stderr F   File "/home/dev/app/s07_asyncio_chained.py", line 23, in <module>
+2026-07-11T03:25:44.118437221Z stderr F     asyncio.run(main())
+2026-07-11T03:25:44.118437221Z stderr F     ~~~~~~~~~~~^^^^^^^^
+2026-07-11T03:25:44.118437221Z stderr F   File "/opt/homebrew/Cellar/python@3.13/3.13.13_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py", line 195, in run
+2026-07-11T03:25:44.118437221Z stderr F     return runner.run(main)
+2026-07-11T03:25:44.118437221Z stderr F            ~~~~~~~~~~^^^^^^
+2026-07-11T03:25:44.118437221Z stderr F   File "/opt/homebrew/Cellar/python@3.13/3.13.13_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py", line 118, in run
+2026-07-11T03:25:44.118437221Z stderr F     return self._loop.run_until_complete(task)
+2026-07-11T03:25:44.118437221Z stderr F            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+2026-07-11T03:25:44.118437221Z stderr F   File "/opt/homebrew/Cellar/python@3.13/3.13.13_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/base_events.py", line 725, in run_until_complete
+2026-07-11T03:25:44.118437221Z stderr F     return future.result()
+2026-07-11T03:25:44.118437221Z stderr F            ~~~~~~~~~~~~~^^
+2026-07-11T03:25:44.118437221Z stderr F   File "/home/dev/app/s07_asyncio_chained.py", line 19, in main
+2026-07-11T03:25:44.118437221Z stderr F     await refresh_symbol("TSLA")
+2026-07-11T03:25:44.118437221Z stderr F   File "/home/dev/app/s07_asyncio_chained.py", line 15, in refresh_symbol
+2026-07-11T03:25:44.118437221Z stderr F     raise RuntimeError(f"quote refresh failed for {symbol}") from e
+2026-07-11T03:25:44.118437221Z stderr F RuntimeError: quote refresh failed for TSLA

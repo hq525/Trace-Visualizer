@@ -1,0 +1,16 @@
+{
+  "language": "python",
+  "source": "celery/celery#7324 (public issue, sanitized by reporter)",
+  "goldenOrigin": "hand-transcribed",
+  "exception": {
+    "type": "billiard.exceptions.WorkerLostError",
+    "message": "Worker exited prematurely: signal 6 (SIGABRT) Job: 0."
+  },
+  "frames": [
+    {
+      "rawPath": "/usr/local/lib/python3.7/dist-packages/billiard/pool.py",
+      "line": 1267,
+      "symbol": "mark_as_worker_lost"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+/home/dev/app/dist/bundle.js:1
+function o(e){return(e.bid+e.ask)/2}function i(e){let r=o(e);return(e.ask-e.bid)/r*1e4}function t(e,r){let n=i(e);if(n>r)throw new RangeError(`spread ${n.toFixed(1)}bps exceeds limit ${r}bps for ${e.symbol}`);return e}function u(){return[{symbol:"AAPL",bid:227.1,ask:227.12},{symbol:"ILLIQ",bid:4.1,ask:5.9}]}function s(e){return u().map(r=>t(r,e))}s(50);
+                                                                                                                         ^
+
+RangeError: spread 3600.0bps exceeds limit 50bps for ILLIQ
+    at t (/home/dev/app/dist/bundle.js:1:128)
+    at /home/dev/app/dist/bundle.js:1:342
+    at Array.map (<anonymous>)
+    at s (/home/dev/app/dist/bundle.js:1:335)
+    at Object.<anonymous> (/home/dev/app/dist/bundle.js:1:350)
+    at Module._compile (node:internal/modules/cjs/loader:1562:14)
+    at Object..js (node:internal/modules/cjs/loader:1699:10)
+    at Module.load (node:internal/modules/cjs/loader:1313:32)
+    at Function._load (node:internal/modules/cjs/loader:1123:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+
+Node.js v22.13.0

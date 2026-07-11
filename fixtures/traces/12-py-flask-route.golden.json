@@ -1,0 +1,74 @@
+{
+  "language": "python",
+  "exception": {
+    "type": "KeyError",
+    "message": "7"
+  },
+  "frames": [
+    {
+      "rawPath": "/home/dev/app/s12_flask_route.py",
+      "line": 16,
+      "symbol": "<module>"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/werkzeug/test.py",
+      "line": 1162,
+      "symbol": "get"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/flask/testing.py",
+      "line": 235,
+      "symbol": "open"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/werkzeug/test.py",
+      "line": 1116,
+      "symbol": "open"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/werkzeug/test.py",
+      "line": 988,
+      "symbol": "run_wsgi_app"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/werkzeug/test.py",
+      "line": 1264,
+      "symbol": "run_wsgi_app"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/flask/app.py",
+      "line": 1536,
+      "symbol": "__call__"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/flask/app.py",
+      "line": 1514,
+      "symbol": "wsgi_app"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/flask/app.py",
+      "line": 1511,
+      "symbol": "wsgi_app"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/flask/app.py",
+      "line": 919,
+      "symbol": "full_dispatch_request"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/flask/app.py",
+      "line": 917,
+      "symbol": "full_dispatch_request"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/flask/app.py",
+      "line": 902,
+      "symbol": "dispatch_request"
+    },
+    {
+      "rawPath": "/home/dev/app/s12_flask_route.py",
+      "line": 12,
+      "symbol": "get_user"
+    }
+  ]
+}

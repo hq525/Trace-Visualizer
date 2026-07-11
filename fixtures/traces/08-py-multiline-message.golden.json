@@ -1,0 +1,24 @@
+{
+  "language": "python",
+  "exception": {
+    "type": "ValueError",
+    "message": "payload validation failed:\n  - missing required field: user_id\n  - amount must be > 0, got -12.50\n  - currency 'XYZ' is not supported"
+  },
+  "frames": [
+    {
+      "rawPath": "/home/dev/app/s08_multiline_message.py",
+      "line": 19,
+      "symbol": "<module>"
+    },
+    {
+      "rawPath": "/home/dev/app/s08_multiline_message.py",
+      "line": 15,
+      "symbol": "ingest"
+    },
+    {
+      "rawPath": "/home/dev/app/s08_multiline_message.py",
+      "line": 11,
+      "symbol": "validate"
+    }
+  ]
+}

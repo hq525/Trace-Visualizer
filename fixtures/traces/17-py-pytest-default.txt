@@ -1,0 +1,14 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____________________ test_fee_never_makes_amount_negative _____________________
+
+    def test_fee_never_makes_amount_negative():
+        charged = apply_processing_fee(Decimal("0.10"))
+>       assert charged >= 0, f"fee made amount negative: {charged}"
+E       AssertionError: fee made amount negative: -0.20
+E       assert Decimal('-0.20') >= 0
+
+test_pricing.py:10: AssertionError
+=========================== short test summary info ============================
+FAILED test_pricing.py::test_fee_never_makes_amount_negative - AssertionError...
+1 failed in 0.01s

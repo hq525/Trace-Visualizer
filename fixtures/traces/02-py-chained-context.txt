@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/home/dev/app/s02_chained_context.py", line 15, in start
+    return read_config()
+  File "/home/dev/app/s02_chained_context.py", line 5, in read_config
+    raise FileNotFoundError("config.toml not found")
+FileNotFoundError: config.toml not found
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/dev/app/s02_chained_context.py", line 20, in <module>
+    start()
+    ~~~~~^^
+  File "/home/dev/app/s02_chained_context.py", line 17, in start
+    return fallback_config()
+  File "/home/dev/app/s02_chained_context.py", line 10, in fallback_config
+    return defaults["production"]
+           ~~~~~~~~^^^^^^^^^^^^^^
+KeyError: 'production'

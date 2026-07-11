@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/home/dev/app/s04_recursion_repeated.py", line 9, in <module>
+    descend({"id": "root"}, 0)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "/home/dev/app/s04_recursion_repeated.py", line 5, in descend
+    return descend(node, depth + 1)
+  File "/home/dev/app/s04_recursion_repeated.py", line 5, in descend
+    return descend(node, depth + 1)
+  File "/home/dev/app/s04_recursion_repeated.py", line 5, in descend
+    return descend(node, depth + 1)
+  [Previous line repeated 996 more times]
+RecursionError: maximum recursion depth exceeded

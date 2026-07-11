@@ -1,0 +1,4 @@
+node_modules/
+spike/package-lock.json
+.playwright-mcp/
+__pycache__/

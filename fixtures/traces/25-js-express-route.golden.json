@@ -1,0 +1,67 @@
+{
+  "language": "js",
+  "exception": {
+    "type": "TypeError",
+    "message": "Cannot read properties of undefined (reading 'total')"
+  },
+  "frames": [
+    {
+      "rawPath": "/home/dev/app/node_modules/router/index.js",
+      "line": 664,
+      "column": 3,
+      "symbol": "processParams"
+    },
+    {
+      "rawPath": "/home/dev/app/node_modules/router/index.js",
+      "line": 610,
+      "column": 14,
+      "symbol": "param"
+    },
+    {
+      "rawPath": "/home/dev/app/node_modules/router/index.js",
+      "line": 600,
+      "column": 14,
+      "symbol": "param"
+    },
+    {
+      "rawPath": "/home/dev/app/node_modules/router/index.js",
+      "line": 295,
+      "column": 15
+    },
+    {
+      "rawPath": "/home/dev/app/node_modules/router/lib/layer.js",
+      "line": 152,
+      "column": 17,
+      "symbol": "Layer.handleRequest"
+    },
+    {
+      "rawPath": "/home/dev/app/node_modules/router/index.js",
+      "line": 435,
+      "column": 11,
+      "symbol": "handle"
+    },
+    {
+      "rawPath": "/home/dev/app/node_modules/router/lib/route.js",
+      "line": 117,
+      "column": 3,
+      "symbol": "Route.dispatch"
+    },
+    {
+      "rawPath": "/home/dev/app/node_modules/router/lib/route.js",
+      "line": 157,
+      "column": 13,
+      "symbol": "next"
+    },
+    {
+      "rawPath": "/home/dev/app/node_modules/router/lib/layer.js",
+      "line": 152,
+      "column": 17,
+      "symbol": "Layer.handleRequest"
+    },
+    {
+      "rawPath": "/home/dev/app/s25_express_route.cjs",
+      "line": 9,
+      "column": 29
+    }
+  ]
+}

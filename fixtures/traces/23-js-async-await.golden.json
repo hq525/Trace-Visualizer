@@ -1,0 +1,21 @@
+{
+  "language": "js",
+  "exception": {
+    "type": "Error",
+    "message": "manifest fetch failed: https://cdn.internal/staging/manifest.json returned 503"
+  },
+  "frames": [
+    {
+      "rawPath": "file:///home/dev/app/s23_async_await.mjs",
+      "line": 11,
+      "column": 3,
+      "symbol": "async main"
+    },
+    {
+      "rawPath": "file:///home/dev/app/s23_async_await.mjs",
+      "line": 3,
+      "column": 9,
+      "symbol": "readManifest"
+    }
+  ]
+}

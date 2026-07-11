@@ -1,0 +1,110 @@
+{
+  "language": "python",
+  "goldenOrigin": "parser-derived, human-audited (frame counts + first/last frames verified against raw text)",
+  "exception": {
+    "type": "AssertionError",
+    "message": "fee made amount negative: -0.20"
+  },
+  "frames": [
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/_pytest/runner.py",
+      "line": 361,
+      "symbol": "from_call"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/_pytest/runner.py",
+      "line": 250,
+      "symbol": "<lambda>"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/pluggy/_hooks.py",
+      "line": 512,
+      "symbol": "__call__"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/pluggy/_manager.py",
+      "line": 120,
+      "symbol": "_hookexec"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/pluggy/_callers.py",
+      "line": 167,
+      "symbol": "_multicall"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/pluggy/_callers.py",
+      "line": 139,
+      "symbol": "_multicall"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/_pytest/logging.py",
+      "line": 865,
+      "symbol": "pytest_runtest_call"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/pluggy/_callers.py",
+      "line": 139,
+      "symbol": "_multicall"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/_pytest/capture.py",
+      "line": 900,
+      "symbol": "pytest_runtest_call"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/pluggy/_callers.py",
+      "line": 139,
+      "symbol": "_multicall"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/_pytest/skipping.py",
+      "line": 268,
+      "symbol": "pytest_runtest_call"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/pluggy/_callers.py",
+      "line": 121,
+      "symbol": "_multicall"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/_pytest/runner.py",
+      "line": 184,
+      "symbol": "pytest_runtest_call"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/_pytest/python.py",
+      "line": 1707,
+      "symbol": "runtest"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/pluggy/_hooks.py",
+      "line": 512,
+      "symbol": "__call__"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/pluggy/_manager.py",
+      "line": 120,
+      "symbol": "_hookexec"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/pluggy/_callers.py",
+      "line": 167,
+      "symbol": "_multicall"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/pluggy/_callers.py",
+      "line": 121,
+      "symbol": "_multicall"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/_pytest/python.py",
+      "line": 167,
+      "symbol": "pytest_pyfunc_call"
+    },
+    {
+      "rawPath": "/home/dev/app/test_pricing.py",
+      "line": 10,
+      "symbol": "test_fee_never_makes_amount_negative"
+    }
+  ]
+}

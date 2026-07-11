@@ -1,0 +1,40 @@
+{
+  "language": "python",
+  "exception": {
+    "type": "ConfigError",
+    "message": "invalid port value: 'eight-thousand'"
+  },
+  "frames": [
+    {
+      "rawPath": "/home/dev/app/s03_chained_cause.py",
+      "line": 20,
+      "symbol": "<module>"
+    },
+    {
+      "rawPath": "/home/dev/app/s03_chained_cause.py",
+      "line": 16,
+      "symbol": "boot"
+    },
+    {
+      "rawPath": "/home/dev/app/s03_chained_cause.py",
+      "line": 12,
+      "symbol": "parse_port"
+    }
+  ],
+  "chained": {
+    "relation": "cause",
+    "trace": {
+      "exception": {
+        "type": "ValueError",
+        "message": "invalid literal for int() with base 10: 'eight-thousand'"
+      },
+      "frames": [
+        {
+          "rawPath": "/home/dev/app/s03_chained_cause.py",
+          "line": 10,
+          "symbol": "parse_port"
+        }
+      ]
+    }
+  }
+}

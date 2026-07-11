@@ -1,0 +1,20 @@
+{
+  "language": "python",
+  "source": "encode/django-rest-framework#5236 comment (public issue, paths anonymized by reporter)",
+  "goldenOrigin": "hand-transcribed",
+  "exception": {
+    "type": "TypeError",
+    "message": "context must be a dict rather than ReturnList."
+  },
+  "frames": [
+    {"rawPath": "/PATH/python3.5/site-packages/django/core/handlers/exception.py", "line": 41, "symbol": "inner"},
+    {"rawPath": "/PATH/python3.5/site-packages/django/core/handlers/base.py", "line": 217, "symbol": "_get_response"},
+    {"rawPath": "/PATH/python3.5/site-packages/django/core/handlers/base.py", "line": 215, "symbol": "_get_response"},
+    {"rawPath": "/PATH/python3.5/site-packages/django/template/response.py", "line": 107, "symbol": "render"},
+    {"rawPath": "/PATH/python3.5/site-packages/rest_framework/response.py", "line": 72, "symbol": "rendered_content"},
+    {"rawPath": "/PATH/python3.5/site-packages/rest_framework/renderers.py", "line": 176, "symbol": "render"},
+    {"rawPath": "/PATH/python3.5/site-packages/rest_framework/compat.py", "line": 340, "symbol": "template_render"},
+    {"rawPath": "/PATH/python3.5/site-packages/django/template/backends/django.py", "line": 64, "symbol": "render"},
+    {"rawPath": "/PATH/python3.5/site-packages/django/template/context.py", "line": 287, "symbol": "make_context"}
+  ]
+}

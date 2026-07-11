@@ -1,0 +1,14 @@
+{
+  "language": "python",
+  "exception": {
+    "type": "SyntaxError",
+    "message": "invalid syntax (bad_syntax.py, line 1)"
+  },
+  "frames": [
+    {
+      "rawPath": "/home/dev/app/s05_syntaxerror_import.py",
+      "line": 3,
+      "symbol": "<module>"
+    }
+  ]
+}

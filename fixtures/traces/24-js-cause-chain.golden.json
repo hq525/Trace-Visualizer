@@ -1,0 +1,84 @@
+{
+  "language": "js",
+  "exception": {
+    "type": "Error",
+    "message": "signer initialization failed"
+  },
+  "frames": [
+    {
+      "rawPath": "node:internal/modules/run_main",
+      "line": 116,
+      "column": 5,
+      "symbol": "async asyncRunEntryPointWithESMLoader"
+    },
+    {
+      "rawPath": "node:internal/modules/esm/loader",
+      "line": 547,
+      "column": 26,
+      "symbol": "async onImport.tracePromise.__proto__"
+    },
+    {
+      "rawPath": "node:internal/modules/esm/module_job",
+      "line": 271,
+      "column": 25,
+      "symbol": "ModuleJob.run"
+    },
+    {
+      "rawPath": "file:///home/dev/app/s24_cause_chain.mjs",
+      "line": 13,
+      "column": 1
+    },
+    {
+      "rawPath": "file:///home/dev/app/s24_cause_chain.mjs",
+      "line": 9,
+      "column": 11,
+      "symbol": "initSigner"
+    }
+  ],
+  "chained": {
+    "relation": "cause",
+    "trace": {
+      "exception": {
+        "type": "Error",
+        "message": "key file missing at /etc/app/signing.pem"
+      },
+      "frames": [
+        {
+          "rawPath": "node:internal/modules/run_main",
+          "line": 116,
+          "column": 5,
+          "symbol": "async asyncRunEntryPointWithESMLoader"
+        },
+        {
+          "rawPath": "node:internal/modules/esm/loader",
+          "line": 547,
+          "column": 26,
+          "symbol": "async onImport.tracePromise.__proto__"
+        },
+        {
+          "rawPath": "node:internal/modules/esm/module_job",
+          "line": 271,
+          "column": 25,
+          "symbol": "ModuleJob.run"
+        },
+        {
+          "rawPath": "file:///home/dev/app/s24_cause_chain.mjs",
+          "line": 13,
+          "column": 1
+        },
+        {
+          "rawPath": "file:///home/dev/app/s24_cause_chain.mjs",
+          "line": 7,
+          "column": 12,
+          "symbol": "initSigner"
+        },
+        {
+          "rawPath": "file:///home/dev/app/s24_cause_chain.mjs",
+          "line": 2,
+          "column": 9,
+          "symbol": "loadSigningKey"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tracemap — KeyError: 'USD ' — settlement-worker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0E1A; --board:#0E1222; --surface:#131829; --panel:#111627;
+    --grid:#1E2440; --line:#272E4C;
+    --text:#E8EAF6; --muted:#8B93B8; --faint:#565E85;
+    --hot:#FF4D5E; --hot-dim:#8A2B36;
+    --static:#4A5378;
+    --ghost:#B388FF;
+    --node:#1A2138; --node-edge:#39415F;
+    --chip:#20263F; --chip-edge:#333B5E;
+    --ok:#39D98A;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:"Space Grotesk",system-ui,sans-serif;
+    font-size:14px; line-height:1.45;
+    display:flex; flex-direction:column; min-height:100vh;
+  }
+  code,.mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+
+  /* ---------- fault readout header ---------- */
+  header{
+    display:flex; align-items:center; gap:14px;
+    padding:14px 20px; border-bottom:1px solid var(--line);
+    background:linear-gradient(180deg,#141a2e 0%,#10152a 100%);
+  }
+  .brand{display:flex;align-items:baseline;gap:8px;margin-right:6px}
+  .brand b{font-weight:600;letter-spacing:.02em}
+  .brand span{color:var(--faint);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+  .exc{
+    display:flex;align-items:center;gap:10px;
+    background:rgba(255,77,94,.08); border:1px solid rgba(255,77,94,.35);
+    border-radius:6px; padding:6px 12px;
+  }
+  .exc .type{color:var(--hot);font-weight:600}
+  .exc .msg{color:var(--text)}
+  .exc .loc{color:var(--muted)}
+  .spacer{flex:1}
+  .pill{
+    border:1px solid var(--line); border-radius:999px;
+    padding:4px 12px; color:var(--muted); font-size:12px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .pill .dot{width:6px;height:6px;border-radius:50%;background:var(--ok)}
+  .pill.ref{color:var(--ghost);border-color:#4b3f77}
+
+  /* ---------- toolbar ---------- */
+  .toolbar{
+    display:flex;align-items:center;gap:10px;
+    padding:8px 20px;border-bottom:1px solid var(--line);
+    background:var(--board);
+  }
+  .toggle{
+    font-size:12px;color:var(--muted);
+    border:1px solid var(--line);border-radius:6px;padding:4px 10px;
+    display:flex;align-items:center;gap:6px;cursor:default;
+  }
+  .toggle.on{color:var(--text);border-color:#3d4670;background:#1a2138}
+  .toggle .sw{width:14px;height:8px;border-radius:4px;background:#39415F;position:relative}
+  .toggle.on .sw{background:#5561a0}
+  .toggle.on .sw::after{content:"";position:absolute;right:0;top:-1px;width:10px;height:10px;border-radius:50%;background:var(--text)}
+  .toggle .sw::after{content:"";position:absolute;left:0;top:-1px;width:10px;height:10px;border-radius:50%;background:#8B93B8}
+  .legend{display:flex;align-items:center;gap:18px;margin-left:auto;font-size:12px;color:var(--muted)}
+  .legend .k{display:flex;align-items:center;gap:7px}
+  .swatch{display:inline-block;width:22px;height:0;border-top:3px solid var(--hot);border-radius:2px}
+  .swatch.static{border-top-color:var(--static)}
+  .swatch.ghost{border-top:3px dashed var(--ghost)}
+  .swatch.group{width:14px;height:10px;border:1.5px solid var(--faint);border-radius:3px;border-top:1.5px solid var(--faint)}
+
+  /* ---------- main ---------- */
+  main{flex:1;display:flex;min-height:0}
+  .canvas-wrap{flex:1;overflow-x:auto;background:
+    radial-gradient(circle at 1px 1px, var(--grid) 1px, transparent 1.4px) 0 0/26px 26px,
+    var(--board)}
+  svg{display:block}
+  text{font-family:"IBM Plex Mono",ui-monospace,monospace}
+  .gutter{fill:var(--faint);font-size:10px;letter-spacing:.22em;text-transform:uppercase;font-family:"Space Grotesk",sans-serif}
+
+  .node rect{fill:var(--node);stroke:var(--node-edge);stroke-width:1.2;rx:7}
+  .node .fn{fill:var(--text);font-size:12px;font-weight:500}
+  .node .file{fill:var(--muted);font-size:9.5px}
+  .node .idx{fill:var(--faint);font-size:9px}
+  .node.crash rect{fill:#2A1520;stroke:var(--hot);stroke-width:1.6}
+  .node.crash .fn{fill:#FFD7DB}
+  .node.ghost-target rect{stroke:var(--ghost);stroke-dasharray:none}
+
+  .chip rect{fill:var(--chip);stroke:var(--chip-edge);stroke-dasharray:4 3;rx:16}
+  .chip text{fill:var(--muted);font-size:11px}
+
+  .radius rect{fill:#161C31;stroke:#2C3355;stroke-width:1;rx:6}
+  .radius text{fill:#9AA2C6;font-size:10px}
+  .radius .rfile{fill:#5E668D;font-size:9px}
+  .radius{opacity:.55}
+
+  .edge-static{stroke:var(--static);stroke-width:1.2;fill:none;opacity:.5}
+  .edge-trace{stroke:var(--hot);stroke-width:2.2;fill:none;
+    filter:drop-shadow(0 0 4px rgba(255,77,94,.45))}
+  .edge-ghost{stroke:var(--ghost);stroke-width:2;fill:none;stroke-dasharray:6 5;
+    filter:drop-shadow(0 0 4px rgba(179,136,255,.4))}
+  .ghost-glyph{fill:var(--ghost);font-size:13px}
+  .ghost-label{fill:var(--ghost);font-size:9.5px;letter-spacing:.06em}
+
+  /* trace draw-on animation — this is the future GIF */
+  .edge-trace.draw{stroke-dasharray:1600;stroke-dashoffset:1600;animation:draw 1.2s ease-out forwards}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  .pulse{fill:none;stroke:var(--hot);stroke-width:1.5;opacity:0;
+    transform-origin:center;transform-box:fill-box;
+    animation:pulse 2.4s ease-out 1.3s infinite}
+  @keyframes pulse{0%{opacity:.7;transform:scale(.6)}70%{opacity:0;transform:scale(1.5)}100%{opacity:0}}
+  @media (prefers-reduced-motion:reduce){
+    .edge-trace.draw{animation:none;stroke-dashoffset:0}
+    .pulse{animation:none;opacity:0}
+  }
+
+  /* ---------- side panel ---------- */
+  aside{
+    width:360px;flex:none;border-left:1px solid var(--line);
+    background:var(--panel);display:flex;flex-direction:column;overflow-y:auto;
+  }
+  .panel-head{padding:16px 18px 12px;border-bottom:1px solid var(--line)}
+  .panel-head .sym{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600}
+  .panel-head .sym .cdot{width:8px;height:8px;border-radius:50%;background:var(--hot);box-shadow:0 0 8px rgba(255,77,94,.8)}
+  .path-row{display:flex;align-items:center;gap:8px;margin-top:8px;color:var(--muted);font-size:12px}
+  .path-row .copy{color:var(--faint);border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-size:10px}
+  .badges{display:flex;gap:6px;margin-top:10px}
+  .badge{font-size:10px;letter-spacing:.08em;text-transform:uppercase;border-radius:4px;padding:3px 8px}
+  .badge.crash{background:rgba(255,77,94,.12);color:var(--hot);border:1px solid rgba(255,77,94,.4)}
+  .badge.fact{background:rgba(57,217,138,.08);color:var(--ok);border:1px solid rgba(57,217,138,.3)}
+  .snippet{padding:14px 0;border-bottom:1px solid var(--line)}
+  .snippet .cap{padding:0 18px 8px;color:var(--faint);font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-family:"Space Grotesk",sans-serif}
+  .snippet pre{font-size:11.5px;line-height:1.7;overflow-x:auto;white-space:normal}
+  .ln{display:flex}
+  .ln .no{width:44px;flex:none;text-align:right;padding-right:12px;color:var(--faint)}
+  .ln .src{white-space:pre;color:#C7CCE8;padding-right:18px}
+  .ln.hot{background:rgba(255,77,94,.10);box-shadow:inset 3px 0 0 var(--hot)}
+  .ln.hot .no{color:var(--hot)}
+  .kw{color:#82AAFF}.st{color:#C3E88D}.cm{color:#5E668D}.fnm{color:#FFCB6B}
+  .edges{padding:14px 18px}
+  .edges .cap{color:var(--faint);font-size:10px;letter-spacing:.18em;text-transform:uppercase;padding-bottom:8px;font-family:"Space Grotesk",sans-serif}
+  .edge-row{display:flex;align-items:center;gap:8px;font-size:12px;padding:5px 0;color:var(--muted)}
+  .edge-row .dir{width:16px;text-align:center;color:var(--faint)}
+  .edge-row .ek{font-size:9px;letter-spacing:.06em;text-transform:uppercase;border-radius:3px;padding:1px 6px;margin-left:auto}
+  .ek.rt{color:var(--hot);border:1px solid rgba(255,77,94,.35)}
+  .ek.stc{color:#8B93B8;border:1px solid var(--line)}
+
+  footer{
+    display:flex;gap:22px;padding:7px 20px;border-top:1px solid var(--line);
+    color:var(--faint);font-size:11px;background:var(--board);
+  }
+  footer .up{color:var(--ok)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand"><b>tracemap</b><span>post-mortem</span></div>
+  <div class="exc mono">
+    <span class="type">KeyError</span>
+    <span class="msg">'USD '</span>
+    <span class="loc">unhandled at validators/money.py:19</span>
+  </div>
+  <div class="spacer"></div>
+  <div class="pill mono"><span class="dot"></span>settlement-worker</div>
+  <div class="pill ref mono">@ v2.31.4</div>
+  <div class="pill mono">10/12 frames resolved</div>
+</header>
+
+<div class="toolbar">
+  <div class="toggle on"><span class="sw"></span>Blast radius</div>
+  <div class="toggle"><span class="sw"></span>Ghost edges only</div>
+  <div class="toggle"><span class="sw"></span>Export PNG</div>
+  <div class="legend">
+    <span class="k"><span class="swatch"></span>runtime trace</span>
+    <span class="k"><span class="swatch static"></span>static call / import</span>
+    <span class="k"><span class="swatch ghost"></span>ghost — dynamic dispatch</span>
+    <span class="k"><span class="swatch group"></span>containment by grouping</span>
+  </div>
+</div>
+
+<main>
+  <div class="canvas-wrap">
+  <svg viewBox="0 0 1560 560" width="1560" height="560" role="img"
+       aria-label="Failure path: 12 frames from worker startup to KeyError in require_currency">
+
+    <!-- gutter labels -->
+    <text class="gutter" x="14" y="200" transform="rotate(-90 14 200)">callers</text>
+    <text class="gutter" x="14" y="480" transform="rotate(-90 14 480)">callees</text>
+
+    <!-- ======== radius edges (static, behind everything) ======== -->
+    <!-- callers (above) into spine anchors -->
+    <path class="edge-static" d="M229 260 Q229 290 229 308"/>
+    <path class="edge-static" d="M354 260 Q354 290 354 308"/>
+    <path class="edge-static" d="M354 188 L354 228"/>
+    <path class="edge-static" d="M729 260 Q729 290 729 308"/>
+    <path class="edge-static" d="M854 260 Q854 290 854 308"/>
+    <path class="edge-static" d="M1104 260 Q1104 290 1104 308"/>
+    <path class="edge-static" d="M1354 260 Q1354 290 1354 308"/>
+    <path class="edge-static" d="M1479 260 Q1479 290 1479 308"/>
+    <!-- callees (below) out of spine anchors -->
+    <path class="edge-static" d="M354 354 Q354 375 354 396"/>
+    <path class="edge-static" d="M604 354 Q604 375 604 396"/>
+    <path class="edge-static" d="M729 354 Q729 375 729 396"/>
+    <path class="edge-static" d="M725 428 L723 466"/>
+    <path class="edge-static" d="M854 354 Q854 375 854 396"/>
+    <path class="edge-static" d="M850 428 L848 466"/>
+    <path class="edge-static" d="M1104 354 Q1104 375 1104 396"/>
+    <path class="edge-static" d="M1229 354 Q1229 375 1229 396"/>
+    <path class="edge-static" d="M1225 428 L1223 466"/>
+    <path class="edge-static" d="M1354 354 Q1354 375 1354 396"/>
+    <path class="edge-static" d="M1350 428 L1348 466"/>
+    <path class="edge-static" d="M1479 354 Q1479 375 1479 396"/>
+
+    <!-- ======== the trace path (runtime fact) ======== -->
+    <path class="edge-trace draw" d="M158 331 H175 M283 331 H300 M408 331 H425 M658 331 H675 M783 331 H800 M908 331 H925 M1033 331 H1050 M1158 331 H1175 M1283 331 H1300 M1408 331 H1425"/>
+    <!-- ghost hop: celery chip -> process_order (no static edge) -->
+    <path class="edge-ghost" d="M527 315 C 536 292, 556 292, 566 308"/>
+    <text class="ghost-glyph" x="541" y="288">⚡</text>
+    <text class="ghost-label" x="465" y="275">decorator-dispatched (@app.task)</text>
+
+    <!-- ======== spine nodes ======== -->
+    <g class="node">
+      <rect x="50" y="308" width="108" height="46" rx="7"/>
+      <text class="idx" x="58" y="321">0</text>
+      <text class="fn" x="104" y="330" text-anchor="middle">&lt;module&gt;</text>
+      <text class="file" x="104" y="345" text-anchor="middle">worker.py:3</text>
+    </g>
+    <g class="node">
+      <rect x="175" y="308" width="108" height="46" rx="7"/>
+      <text class="idx" x="183" y="321">1</text>
+      <text class="fn" x="229" y="330" text-anchor="middle">run_daily…</text>
+      <text class="file" x="229" y="345" text-anchor="middle">worker.py:41</text>
+    </g>
+    <g class="node">
+      <rect x="300" y="308" width="108" height="46" rx="7"/>
+      <text class="idx" x="308" y="321">2</text>
+      <text class="fn" x="354" y="330" text-anchor="middle">settle_batch</text>
+      <text class="file" x="354" y="345" text-anchor="middle">settle.py:88</text>
+    </g>
+    <g class="chip">
+      <rect x="425" y="315" width="108" height="32" rx="16"/>
+      <text x="479" y="335" text-anchor="middle">celery ×11 ▸</text>
+    </g>
+    <g class="node ghost-target">
+      <rect x="550" y="308" width="108" height="46" rx="7"/>
+      <text class="idx" x="558" y="321">14</text>
+      <text class="fn" x="604" y="330" text-anchor="middle">process_order</text>
+      <text class="file" x="604" y="345" text-anchor="middle">orders.py:52</text>
+    </g>
+    <g class="node">
+      <rect x="675" y="308" width="108" height="46" rx="7"/>
+      <text class="idx" x="683" y="321">15</text>
+      <text class="fn" x="729" y="330" text-anchor="middle">load_order</text>
+      <text class="file" x="729" y="345" text-anchor="middle">orders.py:31</text>
+    </g>
+    <g class="node">
+      <rect x="800" y="308" width="108" height="46" rx="7"/>
+      <text class="idx" x="808" y="321">16</text>
+      <text class="fn" x="854" y="330" text-anchor="middle">compute_total</text>
+      <text class="file" x="854" y="345" text-anchor="middle">pricing.py:77</text>
+    </g>
+    <g class="chip">
+      <rect x="925" y="315" width="108" height="32" rx="16"/>
+      <text x="979" y="335" text-anchor="middle">sqlalchemy ×9 ▸</text>
+    </g>
+    <g class="node">
+      <rect x="1050" y="308" width="108" height="46" rx="7"/>
+      <text class="idx" x="1058" y="321">26</text>
+      <text class="fn" x="1104" y="330" text-anchor="middle">fetch_fx_rate</text>
+      <text class="file" x="1104" y="345" text-anchor="middle">repo.py:114</text>
+    </g>
+    <g class="node">
+      <rect x="1175" y="308" width="108" height="46" rx="7"/>
+      <text class="idx" x="1183" y="321">27</text>
+      <text class="fn" x="1229" y="330" text-anchor="middle">lookup_rates</text>
+      <text class="file" x="1229" y="345" text-anchor="middle">cache.py:63</text>
+    </g>
+    <g class="node">
+      <rect x="1300" y="308" width="108" height="46" rx="7"/>
+      <text class="idx" x="1308" y="321">28</text>
+      <text class="fn" x="1354" y="330" text-anchor="middle">build_receipt</text>
+      <text class="file" x="1354" y="345" text-anchor="middle">receipt.py:24</text>
+    </g>
+    <g class="node crash">
+      <g class="pulse-wrap">
+        <circle class="pulse" cx="1479" cy="331" r="40"/>
+      </g>
+      <rect x="1421" y="308" width="116" height="46" rx="7"/>
+      <text class="idx" x="1433" y="321">29</text>
+      <text class="fn" x="1479" y="330" text-anchor="middle">require_currency</text>
+      <text class="file" x="1479" y="345" text-anchor="middle">money.py:19</text>
+    </g>
+
+    <!-- ======== radius nodes: callers above ======== -->
+    <g class="radius">
+      <rect x="181" y="228" width="96" height="32"/>
+      <text x="229" y="241" text-anchor="middle">cron_entry</text>
+      <text class="rfile" x="229" y="253" text-anchor="middle">scheduler.py</text>
+    </g>
+    <g class="radius">
+      <rect x="306" y="228" width="96" height="32"/>
+      <text x="354" y="241" text-anchor="middle">retry_batch</text>
+      <text class="rfile" x="354" y="253" text-anchor="middle">cli.py</text>
+    </g>
+    <g class="radius">
+      <rect x="306" y="156" width="96" height="32"/>
+      <text x="354" y="169" text-anchor="middle">force_settle</text>
+      <text class="rfile" x="354" y="181" text-anchor="middle">api/admin.py</text>
+    </g>
+    <g class="radius">
+      <rect x="681" y="228" width="96" height="32"/>
+      <text x="729" y="241" text-anchor="middle">get_order</text>
+      <text class="rfile" x="729" y="253" text-anchor="middle">api/orders.py</text>
+    </g>
+    <g class="radius">
+      <rect x="806" y="228" width="96" height="32"/>
+      <text x="854" y="241" text-anchor="middle">total_for_invoice</text>
+      <text class="rfile" x="854" y="253" text-anchor="middle">services/invoices.py</text>
+    </g>
+    <g class="radius">
+      <rect x="1056" y="228" width="96" height="32"/>
+      <text x="1104" y="241" text-anchor="middle">refresh_rates</text>
+      <text class="rfile" x="1104" y="253" text-anchor="middle">services/fx.py</text>
+    </g>
+    <g class="radius">
+      <rect x="1306" y="228" width="96" height="32"/>
+      <text x="1354" y="241" text-anchor="middle">preview_receipt</text>
+      <text class="rfile" x="1354" y="253" text-anchor="middle">api/receipts.py</text>
+    </g>
+    <g class="radius">
+      <rect x="1431" y="228" width="96" height="32"/>
+      <text x="1479" y="241" text-anchor="middle">validate_payload</text>
+      <text class="rfile" x="1479" y="253" text-anchor="middle">validators/api.py</text>
+    </g>
+
+    <!-- ======== radius nodes: callees below ======== -->
+    <g class="radius">
+      <rect x="306" y="396" width="96" height="32"/>
+      <text x="354" y="409" text-anchor="middle">notify_finance</text>
+      <text class="rfile" x="354" y="421" text-anchor="middle">jobs/notify.py</text>
+    </g>
+    <g class="radius">
+      <rect x="556" y="396" width="96" height="32"/>
+      <text x="604" y="409" text-anchor="middle">log_event</text>
+      <text class="rfile" x="604" y="421" text-anchor="middle">services/audit.py</text>
+    </g>
+    <g class="radius">
+      <rect x="681" y="396" width="96" height="32"/>
+      <text x="729" y="409" text-anchor="middle">Order.from_row</text>
+      <text class="rfile" x="729" y="421" text-anchor="middle">models/order.py</text>
+    </g>
+    <g class="radius">
+      <rect x="675" y="466" width="96" height="32"/>
+      <text x="723" y="479" text-anchor="middle">get_cached_order</text>
+      <text class="rfile" x="723" y="491" text-anchor="middle">cache.py</text>
+    </g>
+    <g class="radius">
+      <rect x="806" y="396" width="96" height="32"/>
+      <text x="854" y="409" text-anchor="middle">apply_discounts</text>
+      <text class="rfile" x="854" y="421" text-anchor="middle">services/pricing.py</text>
+    </g>
+    <g class="radius">
+      <rect x="800" y="466" width="96" height="32"/>
+      <text x="848" y="479" text-anchor="middle">tax_for</text>
+      <text class="rfile" x="848" y="491" text-anchor="middle">services/tax.py</text>
+    </g>
+    <g class="radius">
+      <rect x="1056" y="396" width="96" height="32"/>
+      <text x="1104" y="409" text-anchor="middle">exec_query</text>
+      <text class="rfile" x="1104" y="421" text-anchor="middle">db/session.py</text>
+    </g>
+    <g class="radius">
+      <rect x="1181" y="396" width="96" height="32"/>
+      <text x="1229" y="409" text-anchor="middle">redis_get</text>
+      <text class="rfile" x="1229" y="421" text-anchor="middle">cache.py</text>
+    </g>
+    <g class="radius">
+      <rect x="1175" y="466" width="96" height="32"/>
+      <text x="1223" y="479" text-anchor="middle">decode_entry</text>
+      <text class="rfile" x="1223" y="491" text-anchor="middle">cache.py</text>
+    </g>
+    <g class="radius">
+      <rect x="1306" y="396" width="96" height="32"/>
+      <text x="1354" y="409" text-anchor="middle">format_lines</text>
+      <text class="rfile" x="1354" y="421" text-anchor="middle">serializers/receipt.py</text>
+    </g>
+    <g class="radius">
+      <rect x="1300" y="466" width="96" height="32"/>
+      <text x="1348" y="479" text-anchor="middle">i18n.t</text>
+      <text class="rfile" x="1348" y="491" text-anchor="middle">i18n.py</text>
+    </g>
+    <g class="radius">
+      <rect x="1431" y="396" width="96" height="32"/>
+      <text x="1479" y="409" text-anchor="middle">known_currencies</text>
+      <text class="rfile" x="1479" y="421" text-anchor="middle">validators/money.py</text>
+    </g>
+  </svg>
+  </div>
+
+  <aside>
+    <div class="panel-head">
+      <div class="sym mono"><span class="cdot"></span>require_currency</div>
+      <div class="path-row mono">validators/money.py:19 <span class="copy">copy</span></div>
+      <div class="badges">
+        <span class="badge crash">crash · frame 29 of 29</span>
+        <span class="badge fact">runtime fact</span>
+      </div>
+    </div>
+    <div class="snippet">
+      <div class="cap">source · ±5 lines</div>
+      <pre class="mono"><span class="ln"><span class="no">14</span><span class="src"></span></span>
+<span class="ln"><span class="no">15</span><span class="src"><span class="kw">def</span> <span class="fnm">require_currency</span>(code: str) -&gt; str:</span></span>
+<span class="ln"><span class="no">16</span><span class="src">    <span class="st">"""Reject unknown currencies."""</span></span></span>
+<span class="ln"><span class="no">17</span><span class="src">    <span class="kw">if not</span> code:</span></span>
+<span class="ln"><span class="no">18</span><span class="src">        <span class="kw">raise</span> MissingCurrency(code)</span></span>
+<span class="ln hot"><span class="no">19</span><span class="src">    <span class="kw">return</span> SUPPORTED[code]</span></span>
+<span class="ln"><span class="no">20</span><span class="src"></span></span>
+<span class="ln"><span class="no">21</span><span class="src"><span class="kw">def</span> <span class="fnm">known_currencies</span>() -&gt; set[str]:</span></span>
+<span class="ln"><span class="no">22</span><span class="src">    <span class="kw">return</span> set(SUPPORTED)</span></span>
+<span class="ln"><span class="no">23</span><span class="src"></span></span>
+<span class="ln"><span class="no">24</span><span class="src"><span class="cm"># table loaded once at import</span></span></span></pre>
+    </div>
+    <div class="edges">
+      <div class="cap">edges</div>
+      <div class="edge-row mono"><span class="dir">←</span>build_receipt<span class="ek rt">runtime</span></div>
+      <div class="edge-row mono"><span class="dir">←</span>validate_payload<span class="ek stc">static</span></div>
+      <div class="edge-row mono"><span class="dir">→</span>known_currencies<span class="ek stc">static</span></div>
+    </div>
+  </aside>
+</main>
+
+<footer class="mono">
+  <span class="up">● offline</span>
+  <span>parsed 30 frames in 0.24s</span>
+  <span>analyzed 47 of 1,882 files (trace-reachable only)</span>
+  <span>2 external runs collapsed</span>
+  <span>1 ghost edge</span>
+</footer>
+
+</body>
+</html>

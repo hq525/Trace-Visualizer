@@ -1,0 +1,68 @@
+{
+  "language": "js",
+  "exception": {
+    "type": "RangeError",
+    "message": "spread 3600.0bps exceeds limit 50bps for ILLIQ"
+  },
+  "frames": [
+    {
+      "rawPath": "node:diagnostics_channel",
+      "line": 322,
+      "column": 14,
+      "symbol": "TracingChannel.traceSync"
+    },
+    {
+      "rawPath": "node:internal/modules/cjs/loader",
+      "line": 1123,
+      "column": 12,
+      "symbol": "Function._load"
+    },
+    {
+      "rawPath": "node:internal/modules/cjs/loader",
+      "line": 1313,
+      "column": 32,
+      "symbol": "Module.load"
+    },
+    {
+      "rawPath": "node:internal/modules/cjs/loader",
+      "line": 1699,
+      "column": 10,
+      "symbol": "Object..js"
+    },
+    {
+      "rawPath": "node:internal/modules/cjs/loader",
+      "line": 1562,
+      "column": 14,
+      "symbol": "Module._compile"
+    },
+    {
+      "rawPath": "/home/dev/app/dist/bundle.js",
+      "line": 1,
+      "column": 350,
+      "symbol": "Object.<anonymous>"
+    },
+    {
+      "rawPath": "/home/dev/app/dist/bundle.js",
+      "line": 1,
+      "column": 335,
+      "symbol": "s"
+    },
+    {
+      "rawPath": "<anonymous>",
+      "line": null,
+      "column": null,
+      "symbol": "Array.map"
+    },
+    {
+      "rawPath": "/home/dev/app/dist/bundle.js",
+      "line": 1,
+      "column": 342
+    },
+    {
+      "rawPath": "/home/dev/app/dist/bundle.js",
+      "line": 1,
+      "column": 128,
+      "symbol": "t"
+    }
+  ]
+}

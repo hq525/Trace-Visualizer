@@ -1,0 +1,19 @@
+{
+  "language": "js",
+  "source": "vercel/next.js#57322 (public issue; Azure App Service per-line log prefixes)",
+  "goldenOrigin": "hand-transcribed",
+  "note": "Two orphan 'at async' lines precede the TypeError header (separate log flush); extraction is expected to anchor on the header and take the contiguous at-run after it. The final at-line has a glued log file path after the closing paren, as posted.",
+  "exception": {
+    "type": "TypeError",
+    "message": "this.incrementalCache.get is not a function"
+  },
+  "frames": [
+    {"rawPath": "/home/site/wwwroot/node_modules/next/dist/server/base-server.js", "line": 533, "column": 20, "symbol": "async NextNodeServer.handleRequestImpl"},
+    {"rawPath": "/home/site/wwwroot/node_modules/next/dist/server/base-server.js", "line": 601, "column": 29, "symbol": "async NextNodeServer.runImpl"},
+    {"rawPath": "node:internal/process/task_queues", "line": 95, "column": 5, "symbol": "process.processTicksAndRejections"},
+    {"rawPath": "/home/site/wwwroot/node_modules/next/dist/server/router.js", "line": 315, "column": 44, "symbol": "Router.execute"},
+    {"rawPath": "/home/site/wwwroot/node_modules/next/dist/server/next-server.js", "line": 406, "column": 74, "symbol": "Object.fn"},
+    {"rawPath": "/home/site/wwwroot/node_modules/next/dist/server/response-cache.js", "line": 90, "column": 11, "symbol": "ResponseCache.get"},
+    {"rawPath": "/home/site/wwwroot/node_modules/next/dist/server/response-cache.js", "line": 46, "column": 74}
+  ]
+}

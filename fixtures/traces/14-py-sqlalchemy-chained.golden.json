@@ -1,0 +1,80 @@
+{
+  "language": "python",
+  "exception": {
+    "type": "sqlalchemy.exc.OperationalError",
+    "message": "(sqlite3.OperationalError) no such table: orders\n[SQL: SELECT id, qty FROM orders WHERE status = 'open']\n(Background on this error at: https://sqlalche.me/e/20/e3q8)"
+  },
+  "frames": [
+    {
+      "rawPath": "/home/dev/app/s14_sqlalchemy_chained.py",
+      "line": 14,
+      "symbol": "<module>"
+    },
+    {
+      "rawPath": "/home/dev/app/s14_sqlalchemy_chained.py",
+      "line": 8,
+      "symbol": "fetch_open_orders"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py",
+      "line": 1421,
+      "symbol": "execute"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/sqlalchemy/sql/elements.py",
+      "line": 526,
+      "symbol": "_execute_on_connection"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py",
+      "line": 1643,
+      "symbol": "_execute_clauseelement"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py",
+      "line": 1848,
+      "symbol": "_execute_context"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py",
+      "line": 1988,
+      "symbol": "_exec_single_context"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py",
+      "line": 2365,
+      "symbol": "_handle_dbapi_exception"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py",
+      "line": 1969,
+      "symbol": "_exec_single_context"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/sqlalchemy/engine/default.py",
+      "line": 952,
+      "symbol": "do_execute"
+    }
+  ],
+  "chained": {
+    "relation": "cause",
+    "trace": {
+      "exception": {
+        "type": "sqlite3.OperationalError",
+        "message": "no such table: orders"
+      },
+      "frames": [
+        {
+          "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/sqlalchemy/engine/base.py",
+          "line": 1969,
+          "symbol": "_exec_single_context"
+        },
+        {
+          "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/sqlalchemy/engine/default.py",
+          "line": 952,
+          "symbol": "do_execute"
+        }
+      ]
+    }
+  }
+}

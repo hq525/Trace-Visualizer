@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/home/dev/app/s08_multiline_message.py", line 19, in <module>
+    ingest({"amount": -12.5, "currency": "XYZ"})
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/dev/app/s08_multiline_message.py", line 15, in ingest
+    validate(payload)
+    ~~~~~~~~^^^^^^^^^
+  File "/home/dev/app/s08_multiline_message.py", line 11, in validate
+    raise ValueError("payload validation failed:\n  - " + "\n  - ".join(problems))
+ValueError: payload validation failed:
+  - missing required field: user_id
+  - amount must be > 0, got -12.50
+  - currency 'XYZ' is not supported

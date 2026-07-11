@@ -1,0 +1,15 @@
+{
+  "language": "js",
+  "goldenOrigin": "parser-derived, human-audited (frame counts + first/last frames verified against raw text)",
+  "exception": {
+    "type": "AssertionError",
+    "message": "expected -20 to be greater than or equal to 0"
+  },
+  "frames": [
+    {
+      "rawPath": "fees.test.ts",
+      "line": 9,
+      "column": 19
+    }
+  ]
+}

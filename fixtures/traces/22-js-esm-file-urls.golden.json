@@ -1,0 +1,56 @@
+{
+  "language": "js",
+  "exception": {
+    "type": "SyntaxError",
+    "message": "Unexpected token 'o', \"not-a-json-row\" is not valid JSON"
+  },
+  "frames": [
+    {
+      "rawPath": "node:internal/modules/run_main",
+      "line": 116,
+      "column": 5,
+      "symbol": "async asyncRunEntryPointWithESMLoader"
+    },
+    {
+      "rawPath": "node:internal/modules/esm/loader",
+      "line": 547,
+      "column": 26,
+      "symbol": "async onImport.tracePromise.__proto__"
+    },
+    {
+      "rawPath": "node:internal/modules/esm/module_job",
+      "line": 271,
+      "column": 25,
+      "symbol": "ModuleJob.run"
+    },
+    {
+      "rawPath": "file:///home/dev/app/s22_esm_file_urls.mjs",
+      "line": 7,
+      "column": 1
+    },
+    {
+      "rawPath": "file:///home/dev/app/s22_esm_file_urls.mjs",
+      "line": 4,
+      "column": 27,
+      "symbol": "loadRows"
+    },
+    {
+      "rawPath": "<anonymous>",
+      "line": null,
+      "column": null,
+      "symbol": "Array.map"
+    },
+    {
+      "rawPath": "file:///home/dev/app/s22_esm_file_urls.mjs",
+      "line": 1,
+      "column": 32,
+      "symbol": "parseRow"
+    },
+    {
+      "rawPath": "<anonymous>",
+      "line": null,
+      "column": null,
+      "symbol": "JSON.parse"
+    }
+  ]
+}

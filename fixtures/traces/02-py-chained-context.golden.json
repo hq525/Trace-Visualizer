@@ -1,0 +1,45 @@
+{
+  "language": "python",
+  "exception": {
+    "type": "KeyError",
+    "message": "'production'"
+  },
+  "frames": [
+    {
+      "rawPath": "/home/dev/app/s02_chained_context.py",
+      "line": 20,
+      "symbol": "<module>"
+    },
+    {
+      "rawPath": "/home/dev/app/s02_chained_context.py",
+      "line": 17,
+      "symbol": "start"
+    },
+    {
+      "rawPath": "/home/dev/app/s02_chained_context.py",
+      "line": 10,
+      "symbol": "fallback_config"
+    }
+  ],
+  "chained": {
+    "relation": "context",
+    "trace": {
+      "exception": {
+        "type": "FileNotFoundError",
+        "message": "config.toml not found"
+      },
+      "frames": [
+        {
+          "rawPath": "/home/dev/app/s02_chained_context.py",
+          "line": 15,
+          "symbol": "start"
+        },
+        {
+          "rawPath": "/home/dev/app/s02_chained_context.py",
+          "line": 5,
+          "symbol": "read_config"
+        }
+      ]
+    }
+  }
+}

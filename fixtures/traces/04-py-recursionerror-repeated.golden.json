@@ -1,0 +1,30 @@
+{
+  "language": "python",
+  "exception": {
+    "type": "RecursionError",
+    "message": "maximum recursion depth exceeded"
+  },
+  "frames": [
+    {
+      "rawPath": "/home/dev/app/s04_recursion_repeated.py",
+      "line": 9,
+      "symbol": "<module>"
+    },
+    {
+      "rawPath": "/home/dev/app/s04_recursion_repeated.py",
+      "line": 5,
+      "symbol": "descend"
+    },
+    {
+      "rawPath": "/home/dev/app/s04_recursion_repeated.py",
+      "line": 5,
+      "symbol": "descend"
+    },
+    {
+      "rawPath": "/home/dev/app/s04_recursion_repeated.py",
+      "line": 5,
+      "symbol": "descend",
+      "repeated": 996
+    }
+  ]
+}

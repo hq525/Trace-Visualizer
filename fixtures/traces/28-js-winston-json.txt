@@ -1,0 +1,3 @@
+{"level":"info","message":"deploy started","service":"release-bot","timestamp":"2026-07-11T04:01:02.001Z"}
+{"level":"error","message":"deploy failed","service":"release-bot","timestamp":"2026-07-11T04:01:03.412Z","stack":"file:///home/dev/app/s23_async_await.mjs:3\n  throw new Error(`manifest fetch failed: ${url} returned 503`);\n        ^\n\nError: manifest fetch failed: https://cdn.internal/staging/manifest.json returned 503\n    at readManifest (file:///home/dev/app/s23_async_await.mjs:3:9)\n    at async main (file:///home/dev/app/s23_async_await.mjs:11:3)"}
+{"level":"info","message":"rollback complete","service":"release-bot","timestamp":"2026-07-11T04:01:05.230Z"}

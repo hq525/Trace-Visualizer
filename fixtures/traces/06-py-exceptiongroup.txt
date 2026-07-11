@@ -1,0 +1,24 @@
+  + Exception Group Traceback (most recent call last):
+  |   File "/home/dev/app/s06_exceptiongroup.py", line 24, in <module>
+  |     sync_all_shards()
+  |     ~~~~~~~~~~~~~~~^^
+  |   File "/home/dev/app/s06_exceptiongroup.py", line 20, in sync_all_shards
+  |     raise ExceptionGroup("2 shard syncs failed", errors)
+  | ExceptionGroup: 2 shard syncs failed (2 sub-exceptions)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/home/dev/app/s06_exceptiongroup.py", line 16, in sync_all_shards
+    |     task()
+    |     ~~~~^^
+    |   File "/home/dev/app/s06_exceptiongroup.py", line 5, in sync_shard_0
+    |     raise ValueError("bad tick value in shard 0")
+    | ValueError: bad tick value in shard 0
+    +---------------- 2 ----------------
+    | Traceback (most recent call last):
+    |   File "/home/dev/app/s06_exceptiongroup.py", line 16, in sync_all_shards
+    |     task()
+    |     ~~~~^^
+    |   File "/home/dev/app/s06_exceptiongroup.py", line 9, in sync_shard_1
+    |     raise TimeoutError("shard 1 timed out after 30s")
+    | TimeoutError: shard 1 timed out after 30s
+    +------------------------------------

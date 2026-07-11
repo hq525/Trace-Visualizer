@@ -1,0 +1,14 @@
+{
+  "language": "python",
+  "exception": {
+    "type": "KeyError",
+    "message": "'marketing'"
+  },
+  "frames": [
+    {
+      "rawPath": "/home/dev/app/s10_module_level.py",
+      "line": 5,
+      "symbol": "<module>"
+    }
+  ]
+}

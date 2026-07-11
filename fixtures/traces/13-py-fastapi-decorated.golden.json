@@ -1,0 +1,199 @@
+{
+  "language": "python",
+  "exception": {
+    "type": "KeyError",
+    "message": "'intraday'"
+  },
+  "frames": [
+    {
+      "rawPath": "/home/dev/app/s13_fastapi_decorated.py",
+      "line": 16,
+      "symbol": "<module>"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/starlette/testclient.py",
+      "line": 482,
+      "symbol": "get"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/httpx/_client.py",
+      "line": 1053,
+      "symbol": "get"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/starlette/testclient.py",
+      "line": 454,
+      "symbol": "request"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/httpx/_client.py",
+      "line": 825,
+      "symbol": "request"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/httpx/_client.py",
+      "line": 914,
+      "symbol": "send"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/httpx/_client.py",
+      "line": 942,
+      "symbol": "_send_handling_auth"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/httpx/_client.py",
+      "line": 979,
+      "symbol": "_send_handling_redirects"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/httpx/_client.py",
+      "line": 1014,
+      "symbol": "_send_single_request"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/starlette/testclient.py",
+      "line": 356,
+      "symbol": "handle_request"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/starlette/testclient.py",
+      "line": 353,
+      "symbol": "handle_request"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/anyio/from_thread.py",
+      "line": 338,
+      "symbol": "call"
+    },
+    {
+      "rawPath": "/opt/homebrew/Cellar/python@3.13/3.13.13_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/concurrent/futures/_base.py",
+      "line": 456,
+      "symbol": "result"
+    },
+    {
+      "rawPath": "/opt/homebrew/Cellar/python@3.13/3.13.13_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/concurrent/futures/_base.py",
+      "line": 401,
+      "symbol": "__get_result"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/anyio/from_thread.py",
+      "line": 263,
+      "symbol": "_call_func"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/fastapi/applications.py",
+      "line": 1163,
+      "symbol": "__call__"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/starlette/applications.py",
+      "line": 90,
+      "symbol": "__call__"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py",
+      "line": 186,
+      "symbol": "__call__"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/starlette/middleware/errors.py",
+      "line": 164,
+      "symbol": "__call__"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/starlette/middleware/exceptions.py",
+      "line": 63,
+      "symbol": "__call__"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py",
+      "line": 53,
+      "symbol": "wrapped_app"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py",
+      "line": 42,
+      "symbol": "wrapped_app"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/fastapi/middleware/asyncexitstack.py",
+      "line": 18,
+      "symbol": "__call__"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/starlette/routing.py",
+      "line": 660,
+      "symbol": "__call__"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/fastapi/routing.py",
+      "line": 2683,
+      "symbol": "app"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/fastapi/routing.py",
+      "line": 1266,
+      "symbol": "handle"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/starlette/routing.py",
+      "line": 276,
+      "symbol": "handle"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/fastapi/routing.py",
+      "line": 150,
+      "symbol": "app"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py",
+      "line": 53,
+      "symbol": "wrapped_app"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/starlette/_exception_handler.py",
+      "line": 42,
+      "symbol": "wrapped_app"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/fastapi/routing.py",
+      "line": 136,
+      "symbol": "app"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/fastapi/routing.py",
+      "line": 690,
+      "symbol": "app"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/fastapi/routing.py",
+      "line": 346,
+      "symbol": "run_endpoint_function"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/starlette/concurrency.py",
+      "line": 34,
+      "symbol": "run_in_threadpool"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/anyio/to_thread.py",
+      "line": 63,
+      "symbol": "run_sync"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py",
+      "line": 2596,
+      "symbol": "run_sync_in_worker_thread"
+    },
+    {
+      "rawPath": "/home/dev/app/.venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py",
+      "line": 1029,
+      "symbol": "run"
+    },
+    {
+      "rawPath": "/home/dev/app/s13_fastapi_decorated.py",
+      "line": 12,
+      "symbol": "read_portfolio"
+    }
+  ]
+}

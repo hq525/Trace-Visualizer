@@ -1,0 +1,19 @@
+{
+  "language": "python",
+  "exception": {
+    "type": "ExceptionGroup",
+    "message": "2 shard syncs failed (2 sub-exceptions)"
+  },
+  "frames": [
+    {
+      "rawPath": "/home/dev/app/s06_exceptiongroup.py",
+      "line": 24,
+      "symbol": "<module>"
+    },
+    {
+      "rawPath": "/home/dev/app/s06_exceptiongroup.py",
+      "line": 20,
+      "symbol": "sync_all_shards"
+    }
+  ]
+}

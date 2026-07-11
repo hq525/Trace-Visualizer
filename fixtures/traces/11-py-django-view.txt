@@ -1,0 +1,36 @@
+Traceback (most recent call last):
+  File "/home/dev/app/s11_django_view.py", line 29, in <module>
+    Client().get("/orders/42/")
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "/home/dev/app/.venv/lib/python3.13/site-packages/django/test/client.py", line 1127, in get
+    response = super().get(
+        path,
+    ...<4 lines>...
+        **extra,
+    )
+  File "/home/dev/app/.venv/lib/python3.13/site-packages/django/test/client.py", line 475, in get
+    return self.generic(
+           ~~~~~~~~~~~~^
+        "GET",
+        ^^^^^^
+    ...<4 lines>...
+        **extra,
+        ^^^^^^^^
+    )
+    ^
+  File "/home/dev/app/.venv/lib/python3.13/site-packages/django/test/client.py", line 671, in generic
+    return self.request(**r)
+           ~~~~~~~~~~~~^^^^^
+  File "/home/dev/app/.venv/lib/python3.13/site-packages/django/test/client.py", line 1090, in request
+    self.check_exception(response)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/home/dev/app/.venv/lib/python3.13/site-packages/django/test/client.py", line 805, in check_exception
+    raise exc_value
+  File "/home/dev/app/.venv/lib/python3.13/site-packages/django/core/handlers/exception.py", line 55, in inner
+    response = get_response(request)
+  File "/home/dev/app/.venv/lib/python3.13/site-packages/django/core/handlers/base.py", line 198, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "/home/dev/app/s11_django_view.py", line 21, in order_detail
+    return JsonResponse(orders[order_id])
+                        ~~~~~~^^^^^^^^^^
+KeyError: 42

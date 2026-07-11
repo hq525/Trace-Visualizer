@@ -1,0 +1,17 @@
+/home/dev/app/s21_typeerror_deep.cjs:8
+    return this.entries.push(entry);
+                        ^
+
+TypeError: Cannot read properties of null (reading 'push')
+    at LedgerStore.append (/home/dev/app/s21_typeerror_deep.cjs:8:25)
+    at Object.record (/home/dev/app/s21_typeerror_deep.cjs:14:18)
+    at settleTrade (/home/dev/app/s21_typeerror_deep.cjs:19:16)
+    at main (/home/dev/app/s21_typeerror_deep.cjs:24:10)
+    at Object.<anonymous> (/home/dev/app/s21_typeerror_deep.cjs:27:1)
+    at Module._compile (node:internal/modules/cjs/loader:1562:14)
+    at Object..js (node:internal/modules/cjs/loader:1699:10)
+    at Module.load (node:internal/modules/cjs/loader:1313:32)
+    at Function._load (node:internal/modules/cjs/loader:1123:12)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+
+Node.js v22.13.0

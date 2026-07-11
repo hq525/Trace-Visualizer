@@ -1,0 +1,15 @@
+undefined:1
+not-a-json-row
+ ^
+
+SyntaxError: Unexpected token 'o', "not-a-json-row" is not valid JSON
+    at JSON.parse (<anonymous>)
+    at parseRow (file:///home/dev/app/s22_esm_file_urls.mjs:1:32)
+    at Array.map (<anonymous>)
+    at loadRows (file:///home/dev/app/s22_esm_file_urls.mjs:4:27)
+    at file:///home/dev/app/s22_esm_file_urls.mjs:7:1
+    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)
+
+Node.js v22.13.0

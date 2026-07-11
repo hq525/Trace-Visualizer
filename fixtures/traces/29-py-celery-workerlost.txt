@@ -1,0 +1,6 @@
+[2022-02-26 00:54:42,330: ERROR/MainProcess] Process 'ForkPoolWorker-4' pid:88688 exited with 'signal 6 (SIGABRT)'
+[2022-02-26 00:54:42,353: ERROR/MainProcess] Task handler raised error: WorkerLostError('Worker exited prematurely: signal 6 (SIGABRT) Job: 0.')
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.7/dist-packages/billiard/pool.py", line 1267, in mark_as_worker_lost
+    human_status(exitcode), job._job),
+billiard.exceptions.WorkerLostError: Worker exited prematurely: signal 6 (SIGABRT) Job: 0.

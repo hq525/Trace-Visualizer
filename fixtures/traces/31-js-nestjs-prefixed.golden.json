@@ -1,0 +1,21 @@
+{
+  "language": "js",
+  "source": "nestjs/nest#16469 (public issue; username path sanitized to /home/dev/obwa-app)",
+  "goldenOrigin": "hand-transcribed",
+  "exception": {
+    "type": "TypeError",
+    "message": "Cannot read properties of undefined (reading 'name')"
+  },
+  "frames": [
+    {"rawPath": "/home/dev/obwa-app/node_modules/@nestjs/core/errors/exceptions-zone.js", "line": 22, "column": 13, "symbol": "async ExceptionsZone.asyncRun"},
+    {"rawPath": "/home/dev/obwa-app/node_modules/@nestjs/core/nest-factory.js", "line": 111, "column": 17, "symbol": "async"},
+    {"rawPath": "/home/dev/obwa-app/node_modules/@nestjs/core/scanner.js", "line": 32, "column": 9, "symbol": "async DependenciesScanner.scan"},
+    {"rawPath": "/home/dev/obwa-app/node_modules/@nestjs/core/scanner.js", "line": 104, "column": 18, "symbol": "DependenciesScanner.scanModulesForDependencies"},
+    {"rawPath": "/home/dev/obwa-app/node_modules/@nestjs/core/scanner.js", "line": 132, "column": 21, "symbol": "DependenciesScanner.reflectControllers"},
+    {"rawPath": "<anonymous>", "line": null, "column": null, "symbol": "Array.forEach"},
+    {"rawPath": "/home/dev/obwa-app/node_modules/@nestjs/core/scanner.js", "line": 133, "column": 18},
+    {"rawPath": "/home/dev/obwa-app/node_modules/@nestjs/core/scanner.js", "line": 296, "column": 24, "symbol": "DependenciesScanner.insertController"},
+    {"rawPath": "/home/dev/obwa-app/node_modules/@nestjs/core/injector/container.js", "line": 189, "column": 19, "symbol": "NestContainer.addController"},
+    {"rawPath": "/home/dev/obwa-app/node_modules/@nestjs/core/injector/module.js", "line": 323, "column": 30, "symbol": "Module.addController"}
+  ]
+}

@@ -1,0 +1,11 @@
+[Nest] 42467  - 02/28/2026, 1:16:04 PM   ERROR [ExceptionHandler] TypeError: Cannot read properties of undefined (reading 'name')
+    at Module.addController (/home/dev/obwa-app/node_modules/@nestjs/core/injector/module.js:323:30)
+    at NestContainer.addController (/home/dev/obwa-app/node_modules/@nestjs/core/injector/container.js:189:19)
+    at DependenciesScanner.insertController (/home/dev/obwa-app/node_modules/@nestjs/core/scanner.js:296:24)
+    at /home/dev/obwa-app/node_modules/@nestjs/core/scanner.js:133:18
+    at Array.forEach (<anonymous>)
+    at DependenciesScanner.reflectControllers (/home/dev/obwa-app/node_modules/@nestjs/core/scanner.js:132:21)
+    at DependenciesScanner.scanModulesForDependencies (/home/dev/obwa-app/node_modules/@nestjs/core/scanner.js:104:18)
+    at async DependenciesScanner.scan (/home/dev/obwa-app/node_modules/@nestjs/core/scanner.js:32:9)
+    at async /home/dev/obwa-app/node_modules/@nestjs/core/nest-factory.js:111:17
+    at async ExceptionsZone.asyncRun (/home/dev/obwa-app/node_modules/@nestjs/core/errors/exceptions-zone.js:22:13)

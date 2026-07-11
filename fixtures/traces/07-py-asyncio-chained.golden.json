@@ -1,0 +1,60 @@
+{
+  "language": "python",
+  "exception": {
+    "type": "RuntimeError",
+    "message": "quote refresh failed for TSLA"
+  },
+  "frames": [
+    {
+      "rawPath": "/home/dev/app/s07_asyncio_chained.py",
+      "line": 23,
+      "symbol": "<module>"
+    },
+    {
+      "rawPath": "/opt/homebrew/Cellar/python@3.13/3.13.13_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py",
+      "line": 195,
+      "symbol": "run"
+    },
+    {
+      "rawPath": "/opt/homebrew/Cellar/python@3.13/3.13.13_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/runners.py",
+      "line": 118,
+      "symbol": "run"
+    },
+    {
+      "rawPath": "/opt/homebrew/Cellar/python@3.13/3.13.13_1/Frameworks/Python.framework/Versions/3.13/lib/python3.13/asyncio/base_events.py",
+      "line": 725,
+      "symbol": "run_until_complete"
+    },
+    {
+      "rawPath": "/home/dev/app/s07_asyncio_chained.py",
+      "line": 19,
+      "symbol": "main"
+    },
+    {
+      "rawPath": "/home/dev/app/s07_asyncio_chained.py",
+      "line": 15,
+      "symbol": "refresh_symbol"
+    }
+  ],
+  "chained": {
+    "relation": "cause",
+    "trace": {
+      "exception": {
+        "type": "ConnectionResetError",
+        "message": "feed dropped while fetching TSLA"
+      },
+      "frames": [
+        {
+          "rawPath": "/home/dev/app/s07_asyncio_chained.py",
+          "line": 13,
+          "symbol": "refresh_symbol"
+        },
+        {
+          "rawPath": "/home/dev/app/s07_asyncio_chained.py",
+          "line": 8,
+          "symbol": "fetch_quote"
+        }
+      ]
+    }
+  }
+}

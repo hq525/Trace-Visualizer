@@ -1,0 +1,11 @@
+TypeError: Cannot read properties of undefined (reading 'total')
+    at /home/dev/app/s25_express_route.cjs:9:29
+    at Layer.handleRequest (/home/dev/app/node_modules/router/lib/layer.js:152:17)
+    at next (/home/dev/app/node_modules/router/lib/route.js:157:13)
+    at Route.dispatch (/home/dev/app/node_modules/router/lib/route.js:117:3)
+    at handle (/home/dev/app/node_modules/router/index.js:435:11)
+    at Layer.handleRequest (/home/dev/app/node_modules/router/lib/layer.js:152:17)
+    at /home/dev/app/node_modules/router/index.js:295:15
+    at param (/home/dev/app/node_modules/router/index.js:600:14)
+    at param (/home/dev/app/node_modules/router/index.js:610:14)
+    at processParams (/home/dev/app/node_modules/router/index.js:664:3)

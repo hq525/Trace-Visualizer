@@ -1,0 +1,10 @@
+2023-10-18T06:22:30.102597711Z: [ERROR] at async NextNodeServer.runImpl (/home/site/wwwroot/node_modules/next/dist/server/base-server.js:601:29)
+2023-10-18T06:22:30.102602411Z: [ERROR] at async NextNodeServer.handleRequestImpl (/home/site/wwwroot/node_modules/next/dist/server/base-server.js:533:20)
+2023-10-18T06:22:30.322019397Z: [ERROR] TypeError: this.incrementalCache.get is not a function
+2023-10-18T06:22:30.322063097Z: [ERROR] at /home/site/wwwroot/node_modules/next/dist/server/response-cache.js:46:74
+2023-10-18T06:22:30.322070797Z: [ERROR] at ResponseCache.get (/home/site/wwwroot/node_modules/next/dist/server/response-cache.js:90:11)
+2023-10-18T06:22:30.322076097Z: [ERROR] at Object.fn (/home/site/wwwroot/node_modules/next/dist/server/next-server.js:406:74)
+2023-10-18T06:22:30.322080897Z: [ERROR] at Router.execute (/home/site/wwwroot/node_modules/next/dist/server/router.js:315:44)
+2023-10-18T06:22:30.322085697Z: [ERROR] at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+2023-10-18T06:22:30.322090197Z: [ERROR] at async NextNodeServer.runImpl (/home/site/wwwroot/node_modules/next/dist/server/base-server.js:601:29)
+2023-10-18T06:22:30.322109697Z: [ERROR] at async NextNodeServer.handleRequestImpl (/home/site/wwwroot/node_modules/next/dist/server/base-server.js:533:20)/appsvctmp/volatile/logs/runtime/ef9eba3181febc83e0dbec5d456e34a4efc4c67a92aaab506ed6f19483326063.log

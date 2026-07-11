@@ -1,0 +1,9 @@
+file:///home/dev/app/s23_async_await.mjs:3
+  throw new Error(`manifest fetch failed: ${url} returned 503`);
+        ^
+
+Error: manifest fetch failed: https://cdn.internal/staging/manifest.json returned 503
+    at readManifest (file:///home/dev/app/s23_async_await.mjs:3:9)
+    at async main (file:///home/dev/app/s23_async_await.mjs:11:3)
+
+Node.js v22.13.0

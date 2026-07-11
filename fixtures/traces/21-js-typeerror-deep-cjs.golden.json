@@ -1,0 +1,69 @@
+{
+  "language": "js",
+  "exception": {
+    "type": "TypeError",
+    "message": "Cannot read properties of null (reading 'push')"
+  },
+  "frames": [
+    {
+      "rawPath": "node:diagnostics_channel",
+      "line": 322,
+      "column": 14,
+      "symbol": "TracingChannel.traceSync"
+    },
+    {
+      "rawPath": "node:internal/modules/cjs/loader",
+      "line": 1123,
+      "column": 12,
+      "symbol": "Function._load"
+    },
+    {
+      "rawPath": "node:internal/modules/cjs/loader",
+      "line": 1313,
+      "column": 32,
+      "symbol": "Module.load"
+    },
+    {
+      "rawPath": "node:internal/modules/cjs/loader",
+      "line": 1699,
+      "column": 10,
+      "symbol": "Object..js"
+    },
+    {
+      "rawPath": "node:internal/modules/cjs/loader",
+      "line": 1562,
+      "column": 14,
+      "symbol": "Module._compile"
+    },
+    {
+      "rawPath": "/home/dev/app/s21_typeerror_deep.cjs",
+      "line": 27,
+      "column": 1,
+      "symbol": "Object.<anonymous>"
+    },
+    {
+      "rawPath": "/home/dev/app/s21_typeerror_deep.cjs",
+      "line": 24,
+      "column": 10,
+      "symbol": "main"
+    },
+    {
+      "rawPath": "/home/dev/app/s21_typeerror_deep.cjs",
+      "line": 19,
+      "column": 16,
+      "symbol": "settleTrade"
+    },
+    {
+      "rawPath": "/home/dev/app/s21_typeerror_deep.cjs",
+      "line": 14,
+      "column": 18,
+      "symbol": "Object.record"
+    },
+    {
+      "rawPath": "/home/dev/app/s21_typeerror_deep.cjs",
+      "line": 8,
+      "column": 25,
+      "symbol": "LedgerStore.append"
+    }
+  ]
+}
