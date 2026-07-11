@@ -2,7 +2,9 @@
 // frames land in are read and analyzed; results are memoized per run.
 import fs from "node:fs";
 import path from "node:path";
+import { analyzeJsSource } from "../analyze/javascript.js";
 import { analyzePythonSource } from "../analyze/python.js";
+import { grammarForFile } from "../analyze/treesitter.js";
 import type { FileAnalysis, SymbolInfo } from "../analyze/types.js";
 import type { Frame, ParsedTrace } from "../parsers/types.js";
 import { type RepoIndex, matchPath } from "./repo.js";
@@ -65,14 +67,20 @@ async function resolveFrame(
   const analysis = await analyzeFile(index.root, match.file, analyses);
   if (!analysis || analysis.skipped) return base;
 
-  if (frame.symbol === "<module>" || frame.symbol === undefined) return base;
-
   const containing = analysis.symbols
     .filter((s) => s.kind === "function" && s.span[0] <= (frame.line as number))
     .filter((s) => (frame.line as number) <= s.span[1])
     .sort((a, b) => b.span[0] - a.span[0]); // innermost first
 
-  const wanted = lastSegment(frame.symbol);
+  if (frame.symbol === undefined) {
+    // anonymous JS frame (bare `at path:line:col`): innermost named function
+    // by span — nothing to verify a name against, so no badge either way
+    if (containing[0]) base.symbol = containing[0];
+    return base;
+  }
+  if (frame.symbol === "<module>") return base;
+
+  const wanted = normalizeSymbol(frame.symbol);
   const inner = containing[0];
   if (inner) {
     if (inner.name === wanted || inner.qualifiedName === frame.symbol) {
@@ -102,20 +110,29 @@ async function analyzeFile(
   const cached = analyses.get(relFile);
   if (cached) return cached;
   if (analyses.size >= MAX_ANALYZED_FILES) return null;
-  if (!relFile.endsWith(".py")) return null;
+  const grammar = grammarForFile(relFile);
+  if (!grammar) return null;
   let source: string;
   try {
     source = fs.readFileSync(path.join(root, relFile), "utf8");
   } catch {
     return null;
   }
-  const analysis = await analyzePythonSource(relFile, source);
+  const analysis =
+    grammar === "python"
+      ? await analyzePythonSource(relFile, source)
+      : await analyzeJsSource(relFile, source);
   analyses.set(relFile, analysis);
   return analysis;
 }
 
-function lastSegment(symbol: string): string {
-  // "Class.method" → "method" · "outer.<locals>.inner" → "inner"
-  const parts = symbol.split(".");
-  return parts[parts.length - 1].replace(/^<locals>$/, parts[parts.length - 1]);
+/** "async Class.method [as alias]" → "method" · "new Foo" → "Foo" ·
+ *  "outer.<locals>.inner" → "inner" */
+function normalizeSymbol(symbol: string): string {
+  const stripped = symbol
+    .replace(/^async\s+/, "")
+    .replace(/^new\s+/, "")
+    .replace(/\s\[as .+\]$/, "");
+  const parts = stripped.split(".");
+  return parts[parts.length - 1];
 }
