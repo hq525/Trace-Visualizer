@@ -1,15 +1,21 @@
-import type { Layout, PlacedNode } from "../layout.js";
+import { type Layout, MARGIN_X, type PlacedNode } from "../layout.js";
 
 export function GraphView({
   layout,
   selectedId,
   onSelect,
+  ghostOnly = false,
 }: {
   layout: Layout;
   selectedId: string | null;
   onSelect: (id: string) => void;
+  ghostOnly?: boolean;
 }) {
   const crash = layout.nodes.find((p) => p.node.crash);
+  const ghostEndpoints = new Set(
+    layout.edges.filter((e) => e.kind === "ghost").flatMap((e) => [e.fromId, e.toId]),
+  );
+  const dimmed = (on: boolean) => (ghostOnly && !on ? { opacity: 0.15 } : undefined);
   return (
     <svg
       width={layout.width}
@@ -20,9 +26,9 @@ export function GraphView({
       className="block"
     >
       {layout.edges
-        .filter((e) => e.kind !== "trace")
+        .filter((e) => e.kind !== "trace" && e.kind !== "ghost")
         .map((e) => (
-          <path key={e.id} className={`edge-${e.kind}`} d={e.path} />
+          <path key={e.id} className={`edge-${e.kind}`} d={e.path} style={dimmed(false)} />
         ))}
       {layout.edges
         .filter((e) => e.kind === "trace")
@@ -31,14 +37,46 @@ export function GraphView({
             key={e.id}
             className="edge-trace draw"
             d={e.path}
-            style={{ animationDelay: `${i * 0.09}s` }}
+            style={{ animationDelay: `${i * 0.09}s`, ...dimmed(false) }}
           />
+        ))}
+      {layout.edges
+        .filter((e) => e.kind === "ghost")
+        .map((e) => (
+          <g key={e.id} data-ghost>
+            <path className="edge-ghost" d={e.path} />
+            {e.labelX !== undefined && (
+              <>
+                <text className="ghost-glyph" x={e.labelX - 5} y={(e.labelY ?? 0) + 20}>
+                  ⚡
+                </text>
+                <text className="ghost-label" x={e.labelX} y={e.labelY} textAnchor="middle">
+                  {e.label}
+                </text>
+              </>
+            )}
+          </g>
         ))}
       {crash && (
         <circle className="pulse" cx={crash.x + crash.w / 2} cy={crash.y + crash.h / 2} r={40} />
       )}
-      {layout.nodes.map((p) => (
-        <Node key={p.node.id} placed={p} selected={p.node.id === selectedId} onSelect={onSelect} />
+      {layout.connectors.map((c) => (
+        <g key={`${c.x}:${c.y}`} className="chain-connector">
+          <line x1={c.x} y1={c.y} x2={layout.width - MARGIN_X} y2={c.y} />
+          <text x={c.x} y={c.y - 7}>
+            ↳ {c.label}
+          </text>
+        </g>
+      ))}
+      {layout.nodes.map((p, i) => (
+        <g key={`${p.node.id}:${i}`} style={dimmed(ghostEndpoints.has(p.node.id))}>
+          <Node placed={p} selected={p.node.id === selectedId} onSelect={onSelect} />
+        </g>
+      ))}
+      {layout.overflow.map((o) => (
+        <text key={`${o.x}:${o.y}`} className="overflow-marker" x={o.x} y={o.y} textAnchor="middle">
+          {o.label}
+        </text>
       ))}
     </svg>
   );
@@ -56,11 +94,13 @@ function Node({
   const { node, x, y, w, h } = placed;
   const cx = x + w / 2;
   const isChip = node.kind === "external-chip";
+  const isRadius = !node.onSpine;
   const classes = [
     "node",
     `kind-${node.kind}`,
     node.crash ? "crash" : "",
     selected ? "selected" : "",
+    isRadius ? "radius" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -70,21 +110,37 @@ function Node({
       className={classes}
       data-node={node.id}
       data-kind={node.kind}
+      data-radius={isRadius || undefined}
       onClick={() => onSelect(node.id)}
     >
-      <rect x={x} y={y} width={w} height={h} rx={isChip ? 16 : 7} />
-      {!isChip && node.frameIndex !== undefined && (
-        <text className="idx" x={x + 8} y={y + 13}>
-          {node.frameIndex}
-        </text>
-      )}
-      <text className="fn" x={cx} y={y + (isChip ? h / 2 + 4 : 22)} textAnchor="middle">
-        {truncate(node.name, 15)}
-      </text>
-      {!isChip && (
-        <text className="file" x={cx} y={y + 37} textAnchor="middle">
-          {node.file ? `${baseName(node.file)}${node.line ? `:${node.line}` : ""}` : "unresolved"}
-        </text>
+      <rect x={x} y={y} width={w} height={h} rx={isChip ? 16 : isRadius ? 6 : 7} />
+      {isRadius ? (
+        <>
+          <text className="fn" x={cx} y={y + 13} textAnchor="middle">
+            {truncate(node.name, 14)}
+          </text>
+          <text className="file" x={cx} y={y + 25} textAnchor="middle">
+            {node.file ? baseName(node.file) : ""}
+          </text>
+        </>
+      ) : (
+        <>
+          {!isChip && node.frameIndex !== undefined && (
+            <text className="idx" x={x + 8} y={y + 13}>
+              {node.frameIndex}
+            </text>
+          )}
+          <text className="fn" x={cx} y={y + (isChip ? h / 2 + 4 : 22)} textAnchor="middle">
+            {truncate(node.name, 15)}
+          </text>
+          {!isChip && (
+            <text className="file" x={cx} y={y + 37} textAnchor="middle">
+              {node.file
+                ? `${baseName(node.file)}${node.line ? `:${node.line}` : ""}`
+                : "unresolved"}
+            </text>
+          )}
+        </>
       )}
     </g>
   );

@@ -1,6 +1,14 @@
 // TraceGraph schema (plan.md §5.9). `--json` dumps exactly this; it is the
 // API contract for the UI, exports, MCP, and tests.
+import type { SymbolInfo } from "../analyze/types.js";
 import type { Frame } from "../parsers/types.js";
+
+/** Blast-radius discovery output (§5.8): a function 1 hop off the spine. */
+export interface RadiusCandidate {
+  file: string;
+  symbol: SymbolInfo;
+  direction: "caller" | "callee";
+}
 
 export type NodeKind = "function" | "class" | "file" | "external-chip" | "unresolved";
 

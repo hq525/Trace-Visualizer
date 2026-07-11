@@ -17,6 +17,8 @@ export function App() {
   const [phase, setPhase] = useState<Phase>({ kind: "loading" });
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [ghostOnly, setGhostOnly] = useState(false);
+  const [radiusOn, setRadiusOn] = useState(true);
 
   useEffect(() => {
     fetchGraph().then((graph) => {
@@ -45,7 +47,17 @@ export function App() {
     setToast(null);
   }, []);
 
-  const layout = useMemo(() => (phase.kind === "graph" ? layoutGraph(phase.graph) : null), [phase]);
+  const layout = useMemo(() => {
+    if (phase.kind !== "graph") return null;
+    // §3.3: blast radius default ON, auto-OFF above 120 rendered nodes
+    const tooBusy = phase.graph.nodes.length > 120;
+    if (radiusOn && !tooBusy) return layoutGraph(phase.graph);
+    const spineOnly = {
+      ...phase.graph,
+      nodes: phase.graph.nodes.filter((n) => n.onSpine),
+    };
+    return layoutGraph(spineOnly);
+  }, [phase, radiusOn]);
 
   const spineIds = useMemo(
     () => (layout ? layout.nodes.filter((p) => p.node.onSpine).map((p) => p.node.id) : []),
@@ -94,6 +106,11 @@ export function App() {
           </div>
         )}
         <div className="flex-1" />
+        {phase.kind === "graph" && phase.graph.meta.ref && (
+          <span className="mono rounded-full border border-[#4b3f77] px-3 py-1 text-[12px] text-[var(--ghost)]">
+            @ {phase.graph.meta.ref}
+          </span>
+        )}
         {phase.kind === "graph" && (
           <span className="mono text-[12px] text-[var(--muted)] border border-[var(--line)] rounded-full px-3 py-1">
             {phase.graph.meta.repo} · {phase.graph.meta.resolvedFrames}/
@@ -108,20 +125,46 @@ export function App() {
         <TracePicker options={phase.options} onPick={(i) => onPaste(phase.text, i)} />
       ) : (
         <>
-          <div className="flex items-center px-5 py-2 border-b border-[var(--line)] bg-[var(--board)]">
+          <div className="flex items-center gap-2 px-5 py-2 border-b border-[var(--line)] bg-[var(--board)]">
+            <button
+              type="button"
+              onClick={() => setRadiusOn((v) => !v)}
+              data-toggle-radius
+              className={`rounded-md border px-2.5 py-1 text-[12px] ${
+                radiusOn
+                  ? "border-[var(--node-edge)] text-[var(--text)]"
+                  : "border-[var(--line)] text-[var(--muted)]"
+              }`}
+            >
+              Blast radius
+            </button>
+            <button
+              type="button"
+              onClick={() => setGhostOnly((v) => !v)}
+              data-toggle-ghost
+              className={`rounded-md border px-2.5 py-1 text-[12px] ${
+                ghostOnly
+                  ? "border-[var(--ghost)] text-[var(--ghost)]"
+                  : "border-[var(--line)] text-[var(--muted)]"
+              }`}
+            >
+              ⚡ Ghost edges only
+            </button>
             <Legend />
           </div>
           <main className="flex flex-1 min-h-0">
             <div className="board flex-1 overflow-auto">
               {layout && (
-                <GraphView layout={layout} selectedId={selectedId} onSelect={setSelectedId} />
+                <GraphView
+                  layout={layout}
+                  selectedId={selectedId}
+                  onSelect={setSelectedId}
+                  ghostOnly={ghostOnly}
+                />
               )}
             </div>
             {phase.kind === "graph" && (
-              <SidePanel
-                graph={phase.graph}
-                node={phase.graph.nodes.find((n) => n.id === selectedId) ?? null}
-              />
+              <SidePanel graph={phase.graph} node={findNode(phase.graph, selectedId)} />
             )}
           </main>
         </>
@@ -143,4 +186,16 @@ export function App() {
 function firstLine(s: string): string {
   const nl = s.indexOf("\n");
   return nl === -1 ? s : `${s.slice(0, nl)} …`;
+}
+
+/** node lookup across the top-level graph and chained rows (§5.11) */
+function findNode(graph: TraceGraph, id: string | null) {
+  if (!id) return null;
+  const direct = graph.nodes.find((n) => n.id === id);
+  if (direct) return direct;
+  for (const c of graph.chained ?? []) {
+    const hit = c.graph.nodes.find((n) => n.id === id);
+    if (hit) return hit;
+  }
+  return null;
 }

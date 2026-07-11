@@ -74,3 +74,34 @@ describe("trace graph builder (§5.9)", () => {
     expect(JSON.parse(JSON.stringify(graph))).toEqual(graph);
   });
 });
+
+describe("ghost edges (§5.7, flagship)", () => {
+  const nameOf = (id: string) => graph.nodes.find((n) => n.id === id)?.name;
+
+  it("emits a runtime ghost edge where the trace hopped without a static edge", () => {
+    const ghosts = graph.edges.filter((e) => e.kind === "ghost");
+    expect(ghosts).toHaveLength(1);
+    expect(nameOf(ghosts[0].from)).toBe("build_quote");
+    expect(nameOf(ghosts[0].to)).toBe("price_with_tax");
+    expect(ghosts[0].evidence).toBe("runtime");
+  });
+
+  it("labels the registry dispatch with the callee's decorator", () => {
+    const ghost = graph.edges.find((e) => e.kind === "ghost");
+    expect(ghost?.ghostHint).toContain("decorator-dispatched");
+    expect(ghost?.ghostHint).toContain("@pricer");
+  });
+
+  it("does not ghost statically-linked pairs", () => {
+    const ghosts = graph.edges.filter((e) => e.kind === "ghost");
+    const staticPairs = graph.edges
+      .filter((e) => e.kind === "call")
+      .map((e) => `${e.from}->${e.to}`);
+    for (const g of ghosts) {
+      expect(staticPairs).not.toContain(`${g.from}->${g.to}`);
+    }
+    // convert → _lookup_rate is a plain static call: never a ghost
+    const convertNode = graph.nodes.find((n) => n.name === "convert");
+    expect(ghosts.some((g) => g.from === convertNode?.id)).toBe(false);
+  });
+});
