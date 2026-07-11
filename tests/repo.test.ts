@@ -2,7 +2,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { buildRepoIndex, matchPath, type RepoIndex } from "../src/resolve/repo.js";
+import { type RepoIndex, buildRepoIndex, matchPath } from "../src/resolve/repo.js";
 
 let root: string;
 let index: RepoIndex;

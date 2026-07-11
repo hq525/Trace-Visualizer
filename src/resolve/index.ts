@@ -5,7 +5,7 @@ import path from "node:path";
 import { analyzePythonSource } from "../analyze/python.js";
 import type { FileAnalysis, SymbolInfo } from "../analyze/types.js";
 import type { Frame, ParsedTrace } from "../parsers/types.js";
-import { matchPath, type RepoIndex } from "./repo.js";
+import { type RepoIndex, matchPath } from "./repo.js";
 
 export interface ResolvedFrame {
   frame: Frame;

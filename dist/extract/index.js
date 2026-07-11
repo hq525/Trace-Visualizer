@@ -1,8 +1,8 @@
 // Dirty text → ExtractedTrace[] (plan.md §5.1). Ported from the Phase 0 spike.
 // Handles JSON-wrapped log lines, per-line log prefixes (k8s CRI, ISO+level,
 // NestJS), then anchors Python/V8 blocks.
-import { isGroupAnchor, PY_ANCHOR, parsePythonChain } from "../parsers/python.js";
-import { parseV8Block, V8_AT, V8_HEADER } from "../parsers/v8.js";
+import { PY_ANCHOR, isGroupAnchor, parsePythonChain } from "../parsers/python.js";
+import { V8_AT, V8_HEADER, parseV8Block } from "../parsers/v8.js";
 const PREFIX_PATTERNS = [
     // k8s CRI: 2026-07-11T03:25:44.118437221Z stderr F <line>
     /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z (?:stdout|stderr) [PF] /,

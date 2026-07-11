@@ -1,7 +1,7 @@
 // Composition root: dirty text + repo root → TraceGraph, or a typed failure
 // matching the CLI exit-code contract (§3.2).
 import path from "node:path";
-import { extractTraces, SEARCHED_ANCHORS } from "./extract/index.js";
+import { SEARCHED_ANCHORS, extractTraces } from "./extract/index.js";
 import { buildGraph } from "./graph/build.js";
 import type { TraceGraph } from "./graph/types.js";
 import { resolveTrace } from "./resolve/index.js";
@@ -34,9 +34,7 @@ export async function runPipeline(text: string, repoRoot: string): Promise<Pipel
   if (graph.meta.resolvedFrames === 0) {
     const unresolvedPaths = [
       ...new Set(
-        resolved
-          .filter((r) => !r.frame.isExternal && r.file === null)
-          .map((r) => r.frame.rawPath),
+        resolved.filter((r) => !r.frame.isExternal && r.file === null).map((r) => r.frame.rawPath),
       ),
     ].slice(0, 5);
     return {

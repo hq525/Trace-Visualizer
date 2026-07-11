@@ -4,7 +4,7 @@ import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Frame, ParsedTrace } from "../src/parsers/types.js";
 import { resolveTrace } from "../src/resolve/index.js";
-import { buildRepoIndex, type RepoIndex } from "../src/resolve/repo.js";
+import { type RepoIndex, buildRepoIndex } from "../src/resolve/repo.js";
 
 const API_SOURCE = `from fastapi import FastAPI
 app = FastAPI()

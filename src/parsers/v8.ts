@@ -71,7 +71,8 @@ export function parseV8Block(lines: string[], start: number, baseIndent = -1): B
     let filled = false;
     if (after && !("__elide" in after) && causeRawFrames) {
       const j = causeRawFrames.findIndex(
-        (cf) => cf.rawPath === after.rawPath && cf.line === after.line && cf.column === after.column,
+        (cf) =>
+          cf.rawPath === after.rawPath && cf.line === after.line && cf.column === after.column,
       );
       if (j >= f.__elide) {
         resolved.push(...causeRawFrames.slice(j - f.__elide, j).map((cf) => ({ ...cf })));

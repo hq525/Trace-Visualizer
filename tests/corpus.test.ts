@@ -45,7 +45,9 @@ function traceErrors(got: ParsedTrace | undefined, want: GoldenTrace, ctx = ""):
   const gm = got.exception.message.trim();
   const wm = want.exception.message.trim();
   if (!(gm.startsWith(wm) || wm.startsWith(gm)))
-    errs.push(`${ctx}message ${JSON.stringify(gm.slice(0, 60))} !~ ${JSON.stringify(wm.slice(0, 60))}`);
+    errs.push(
+      `${ctx}message ${JSON.stringify(gm.slice(0, 60))} !~ ${JSON.stringify(wm.slice(0, 60))}`,
+    );
   if (got.frames.length !== want.frames.length) {
     errs.push(`${ctx}frame count ${got.frames.length} != ${want.frames.length}`);
   } else {
