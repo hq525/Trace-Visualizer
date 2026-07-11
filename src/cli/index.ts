@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
+import type { AiProvider } from "../ai/providers.js";
 import { renderHtml, renderSvg } from "../export/index.js";
 import { addRefWorktree, withRef } from "../gitref/index.js";
 import type { TraceGraph } from "../graph/types.js";
@@ -22,6 +23,9 @@ Usage:
 Options:
   -t, --trace <file>   Read trace/log from file (or pipe via stdin)
   -r, --repo <path>    Repo root (default: cwd, walking up to the nearest .git)
+  --ref <git-ref>      Analyze the code version that crashed (git worktree)
+  --ai <provider>      anthropic | openai | ollama (default: off, fully offline)
+  --model <name>       Override the provider's default model
   --json               Print graph JSON to stdout and exit
   --port <n>           Fixed port (default: random free port on 127.0.0.1)
   --no-open            Don't auto-open the browser
@@ -37,6 +41,8 @@ async function main(): Promise<void> {
       repo: { type: "string", short: "r" },
       ref: { type: "string" },
       output: { type: "string", short: "o" },
+      ai: { type: "string" },
+      model: { type: "string" },
       json: { type: "boolean", default: false },
       port: { type: "string" },
       "no-open": { type: "boolean", default: false },
@@ -52,6 +58,14 @@ async function main(): Promise<void> {
   const subcommand = positionals[0];
   let repoRoot = values.repo ? path.resolve(values.repo) : findRepoRoot(process.cwd());
   let repoLabel: string | undefined;
+
+  // §3.5: stdio MCP server — stdout belongs to JSON-RPC, so this branches
+  // before anything can print
+  if (subcommand === "mcp") {
+    const { runMcpServer } = await import("../mcp/index.js");
+    await runMcpServer();
+    return;
+  }
 
   // Flow D: crashpath export -t trace.txt -o failure.html|failure.svg
   if (subcommand === "export") {
@@ -155,10 +169,23 @@ async function main(): Promise<void> {
     return;
   }
 
+  let ai: { provider: AiProvider; model?: string } | undefined;
+  if (values.ai) {
+    if (values.ai !== "anthropic" && values.ai !== "openai" && values.ai !== "ollama") {
+      process.stderr.write(
+        `crashpath: unknown --ai provider '${values.ai}' (anthropic | openai | ollama)\n`,
+      );
+      process.exitCode = 1;
+      return;
+    }
+    ai = { provider: values.ai, ...(values.model ? { model: values.model } : {}) };
+  }
+
   const server = await startServer({
     repoRoot,
     port: values.port ? Number(values.port) : 0,
     ...(initialGraph ? { initialGraph } : {}),
+    ...(ai ? { ai } : {}),
   });
   process.stdout.write(`crashpath: ${server.url}\n`);
   if (!values["no-open"]) openBrowser(server.url);

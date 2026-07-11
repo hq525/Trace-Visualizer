@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
+import { annotate } from "../ai/index.js";
+import type { AiProvider } from "../ai/providers.js";
 import type { TraceGraph } from "../graph/types.js";
 import { listTraces, runPipeline } from "../pipeline.js";
 
@@ -13,6 +15,8 @@ export interface ServerOptions {
   port: number;
   /** pre-load a graph (demo / -t flows) */
   initialGraph?: TraceGraph;
+  /** optional AI annotation (§3.4); absent = feature off, zero network */
+  ai?: { provider: AiProvider; model?: string };
 }
 
 export interface RunningServer {
@@ -32,6 +36,17 @@ export async function startServer(options: ServerOptions): Promise<RunningServer
   app.get("/api/graph", (c) => {
     if (!currentGraph) return c.json({ message: "no trace loaded yet" }, 404);
     return c.json(currentGraph);
+  });
+
+  app.get("/api/config", (c) => c.json({ ai: options.ai ?? null }));
+
+  // §3.4: annotation only — the response never contains nodes or edges
+  app.post("/api/ai", async (c) => {
+    if (!options.ai) return c.json({ message: "start crashpath with --ai <provider>" }, 501);
+    if (!currentGraph) return c.json({ message: "no trace loaded yet" }, 404);
+    const result = await annotate(currentGraph, repoRoot, options.ai);
+    if (!result.ok) return c.json({ message: result.error }, 502);
+    return c.json(result.annotation);
   });
 
   app.post("/api/trace", async (c) => {

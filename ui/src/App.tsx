@@ -1,5 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { type TraceGraph, type TraceSummary, fetchGraph, postTrace } from "./api.js";
+import {
+  type AiAnnotation,
+  type AppConfig,
+  type TraceGraph,
+  type TraceSummary,
+  fetchConfig,
+  fetchGraph,
+  postAi,
+  postTrace,
+} from "./api.js";
 import { GraphView } from "./components/GraphView.js";
 import { Legend } from "./components/Legend.js";
 import { PasteBox } from "./components/PasteBox.js";
@@ -19,8 +28,23 @@ export function App() {
   const [toast, setToast] = useState<string | null>(null);
   const [ghostOnly, setGhostOnly] = useState(false);
   const [radiusOn, setRadiusOn] = useState(true);
+  const [config, setConfig] = useState<AppConfig>({ ai: null });
+  const [annotation, setAnnotation] = useState<AiAnnotation | null>(null);
+  const [aiBusy, setAiBusy] = useState(false);
+
+  const onAnalyze = useCallback(async () => {
+    setAiBusy(true);
+    try {
+      const result = await postAi();
+      if (result.ok) setAnnotation(result.annotation);
+      else setToast(result.message);
+    } finally {
+      setAiBusy(false);
+    }
+  }, []);
 
   useEffect(() => {
+    fetchConfig().then(setConfig);
     fetchGraph().then((graph) => {
       if (graph) {
         setPhase({ kind: "graph", graph });
@@ -164,7 +188,11 @@ export function App() {
               )}
             </div>
             {phase.kind === "graph" && (
-              <SidePanel graph={phase.graph} node={findNode(phase.graph, selectedId)} />
+              <SidePanel
+                graph={phase.graph}
+                node={findNode(phase.graph, selectedId)}
+                ai={config.ai ? { annotation, busy: aiBusy, onAnalyze } : null}
+              />
             )}
           </main>
         </>
