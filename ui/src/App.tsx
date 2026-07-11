@@ -18,6 +18,7 @@ export function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [ghostOnly, setGhostOnly] = useState(false);
+  const [radiusOn, setRadiusOn] = useState(true);
 
   useEffect(() => {
     fetchGraph().then((graph) => {
@@ -46,7 +47,17 @@ export function App() {
     setToast(null);
   }, []);
 
-  const layout = useMemo(() => (phase.kind === "graph" ? layoutGraph(phase.graph) : null), [phase]);
+  const layout = useMemo(() => {
+    if (phase.kind !== "graph") return null;
+    // §3.3: blast radius default ON, auto-OFF above 120 rendered nodes
+    const tooBusy = phase.graph.nodes.length > 120;
+    if (radiusOn && !tooBusy) return layoutGraph(phase.graph);
+    const spineOnly = {
+      ...phase.graph,
+      nodes: phase.graph.nodes.filter((n) => n.onSpine),
+    };
+    return layoutGraph(spineOnly);
+  }, [phase, radiusOn]);
 
   const spineIds = useMemo(
     () => (layout ? layout.nodes.filter((p) => p.node.onSpine).map((p) => p.node.id) : []),
@@ -110,6 +121,18 @@ export function App() {
       ) : (
         <>
           <div className="flex items-center gap-2 px-5 py-2 border-b border-[var(--line)] bg-[var(--board)]">
+            <button
+              type="button"
+              onClick={() => setRadiusOn((v) => !v)}
+              data-toggle-radius
+              className={`rounded-md border px-2.5 py-1 text-[12px] ${
+                radiusOn
+                  ? "border-[var(--node-edge)] text-[var(--text)]"
+                  : "border-[var(--line)] text-[var(--muted)]"
+              }`}
+            >
+              Blast radius
+            </button>
             <button
               type="button"
               onClick={() => setGhostOnly((v) => !v)}

@@ -3,6 +3,7 @@
 import path from "node:path";
 import { SEARCHED_ANCHORS, extractTraces } from "./extract/index.js";
 import { buildGraph } from "./graph/build.js";
+import { collectRadius } from "./graph/radius.js";
 import { loadTsconfigPaths } from "./graph/tsconfig.js";
 import type { TraceGraph } from "./graph/types.js";
 import { resolveTrace } from "./resolve/index.js";
@@ -73,11 +74,19 @@ export async function runPipeline(
   const index = buildRepoIndex(repoRoot);
   await applySourcemaps(trace, index); // §5.3: rewrite generated-file frames in place
   const { resolved, analyses } = await resolveTrace(trace, index);
-  const graph = buildGraph(trace, resolved, analyses, {
-    repo: options.repoLabel ?? path.basename(path.resolve(repoRoot)),
-    language: trace.language,
-    pathAliases: loadTsconfigPaths(path.resolve(repoRoot)),
-  });
+  const pathAliases = loadTsconfigPaths(path.resolve(repoRoot));
+  const radius = await collectRadius(resolved, index, analyses, pathAliases); // §5.8
+  const graph = buildGraph(
+    trace,
+    resolved,
+    analyses,
+    {
+      repo: options.repoLabel ?? path.basename(path.resolve(repoRoot)),
+      language: trace.language,
+      pathAliases,
+    },
+    radius,
+  );
 
   if (graph.meta.resolvedFrames === 0) {
     const unresolvedPaths = [

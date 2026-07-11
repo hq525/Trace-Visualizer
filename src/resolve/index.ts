@@ -66,7 +66,7 @@ async function resolveFrame(
   if (frame.mappedFrom) base.badges.push("via-sourcemap");
   if (frame.noSourcemap) base.badges.push("no-sourcemap");
 
-  const analysis = await analyzeFile(index.root, match.file, analyses);
+  const analysis = await analyzeRepoFile(index.root, match.file, analyses);
   if (!analysis || analysis.skipped) return base;
 
   const containing = analysis.symbols
@@ -104,7 +104,9 @@ async function resolveFrame(
   return base;
 }
 
-async function analyzeFile(
+/** Lazily analyze a repo file into the shared per-run cache (also used by
+ * blast-radius discovery, §5.8). Honors the global analyzed-files cap. */
+export async function analyzeRepoFile(
   root: string,
   relFile: string,
   analyses: Map<string, FileAnalysis>,

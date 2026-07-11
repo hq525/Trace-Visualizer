@@ -65,6 +65,11 @@ export function GraphView({
           <Node placed={p} selected={p.node.id === selectedId} onSelect={onSelect} />
         </g>
       ))}
+      {layout.overflow.map((o) => (
+        <text key={`${o.x}:${o.y}`} className="overflow-marker" x={o.x} y={o.y} textAnchor="middle">
+          {o.label}
+        </text>
+      ))}
     </svg>
   );
 }
@@ -81,11 +86,13 @@ function Node({
   const { node, x, y, w, h } = placed;
   const cx = x + w / 2;
   const isChip = node.kind === "external-chip";
+  const isRadius = !node.onSpine;
   const classes = [
     "node",
     `kind-${node.kind}`,
     node.crash ? "crash" : "",
     selected ? "selected" : "",
+    isRadius ? "radius" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -95,21 +102,37 @@ function Node({
       className={classes}
       data-node={node.id}
       data-kind={node.kind}
+      data-radius={isRadius || undefined}
       onClick={() => onSelect(node.id)}
     >
-      <rect x={x} y={y} width={w} height={h} rx={isChip ? 16 : 7} />
-      {!isChip && node.frameIndex !== undefined && (
-        <text className="idx" x={x + 8} y={y + 13}>
-          {node.frameIndex}
-        </text>
-      )}
-      <text className="fn" x={cx} y={y + (isChip ? h / 2 + 4 : 22)} textAnchor="middle">
-        {truncate(node.name, 15)}
-      </text>
-      {!isChip && (
-        <text className="file" x={cx} y={y + 37} textAnchor="middle">
-          {node.file ? `${baseName(node.file)}${node.line ? `:${node.line}` : ""}` : "unresolved"}
-        </text>
+      <rect x={x} y={y} width={w} height={h} rx={isChip ? 16 : isRadius ? 6 : 7} />
+      {isRadius ? (
+        <>
+          <text className="fn" x={cx} y={y + 13} textAnchor="middle">
+            {truncate(node.name, 14)}
+          </text>
+          <text className="file" x={cx} y={y + 25} textAnchor="middle">
+            {node.file ? baseName(node.file) : ""}
+          </text>
+        </>
+      ) : (
+        <>
+          {!isChip && node.frameIndex !== undefined && (
+            <text className="idx" x={x + 8} y={y + 13}>
+              {node.frameIndex}
+            </text>
+          )}
+          <text className="fn" x={cx} y={y + (isChip ? h / 2 + 4 : 22)} textAnchor="middle">
+            {truncate(node.name, 15)}
+          </text>
+          {!isChip && (
+            <text className="file" x={cx} y={y + 37} textAnchor="middle">
+              {node.file
+                ? `${baseName(node.file)}${node.line ? `:${node.line}` : ""}`
+                : "unresolved"}
+            </text>
+          )}
+        </>
       )}
     </g>
   );

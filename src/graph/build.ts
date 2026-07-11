@@ -3,11 +3,11 @@
 // no type inference). Ghost edges and blast radius land in Phase 3.
 import { createHash } from "node:crypto";
 import path from "node:path";
-import type { FileAnalysis } from "../analyze/types.js";
+import type { CallSite, FileAnalysis, SymbolInfo } from "../analyze/types.js";
 import type { Frame, ParsedTrace } from "../parsers/types.js";
 import type { ResolvedFrame } from "../resolve/index.js";
 import { type PathAliases, expandAliases } from "./tsconfig.js";
-import type { GraphEdge, GraphNode, TraceGraph } from "./types.js";
+import type { GraphEdge, GraphNode, RadiusCandidate, TraceGraph } from "./types.js";
 
 export interface BuildMeta {
   repo: string;
@@ -22,13 +22,14 @@ export function buildGraph(
   resolved: ResolvedFrame[],
   analyses: Map<string, FileAnalysis>,
   meta: BuildMeta,
+  radius: RadiusCandidate[] = [],
 ): TraceGraph {
   const levels = flattenChain(trace);
   let offset = 0;
   const levelGraphs = levels.map((t, i) => {
     const slice = resolved.slice(offset, offset + t.frames.length);
     offset += t.frames.length;
-    return coreGraph(t, slice, analyses, meta, i === 0);
+    return coreGraph(t, slice, analyses, meta, i === 0, i === 0 ? radius : []);
   });
 
   const top = levelGraphs[0];
@@ -62,6 +63,7 @@ function coreGraph(
   analyses: Map<string, FileAnalysis>,
   meta: BuildMeta,
   isTop: boolean,
+  radius: RadiusCandidate[],
 ): TraceGraph {
   const nodes: GraphNode[] = [];
   const edges: GraphEdge[] = [];
@@ -157,13 +159,29 @@ function coreGraph(
     if (crash) crash.crash = true;
   }
 
+  // §5.8: radius nodes join the graph BEFORE the static-edge pass, which then
+  // wires spine→callee and caller→spine links with the same §5.6 rules
+  for (const rc of radius) {
+    push({
+      id: hashId(rc.file, rc.symbol.qualifiedName),
+      kind: "function",
+      name: rc.symbol.name,
+      qualifiedName: rc.symbol.qualifiedName,
+      file: rc.file,
+      span: rc.symbol.span,
+      onSpine: false,
+      badges: [],
+    });
+  }
+
   emitStaticCallEdges(byId, analyses, edges, meta.pathAliases ?? {});
   emitGhostEdges(spineIds, byId, analyses, edges);
+  const capped = capRadiusByDegree(nodes, edges);
 
   return {
     exception: trace.exception,
-    nodes,
-    edges,
+    nodes: capped.nodes,
+    edges: capped.edges,
     meta: {
       repo: meta.repo,
       ...(meta.ref ? { ref: meta.ref } : {}),
@@ -198,27 +216,9 @@ function emitStaticCallEdges(
       const fromNode = fnNode(file, fromSyms[0].qualifiedName);
       if (!fromNode) continue;
 
-      // candidates: same file, then imported names
-      const candidates: { file: string; qualifiedName: string }[] = [];
-      for (const s of analysis.symbols) {
-        if (s.kind === "function" && s.name === call.calleeName) {
-          candidates.push({ file, qualifiedName: s.qualifiedName });
-        }
-      }
-      for (const imp of analysis.imports) {
-        if (!imp.names.includes(call.calleeName)) continue;
-        for (const [otherFile, other] of analyses) {
-          if (otherFile === file) continue;
-          if (!moduleMatchesFile(imp.module, file, otherFile, aliases)) continue;
-          for (const s of other.symbols) {
-            if (s.kind === "function" && s.name === call.calleeName) {
-              candidates.push({ file: otherFile, qualifiedName: s.qualifiedName });
-            }
-          }
-        }
-      }
-      if (candidates.length !== 1) continue;
-      const toNode = fnNode(candidates[0].file, candidates[0].qualifiedName);
+      const target = resolveUniqueCallTarget(call, file, analyses, aliases);
+      if (!target) continue;
+      const toNode = fnNode(target.file, target.symbol.qualifiedName);
       if (!toNode || toNode.id === fromNode.id) continue;
       const key = `${fromNode.id}->${toNode.id}`;
       if (seen.has(key)) continue;
@@ -232,6 +232,66 @@ function emitStaticCallEdges(
       });
     }
   }
+}
+
+/** §5.6 candidate resolution, shared with blast-radius discovery: a call site
+ * resolves only when exactly one candidate matches among same-file symbols and
+ * explicitly imported names. */
+export function resolveUniqueCallTarget(
+  call: CallSite,
+  file: string,
+  analyses: Map<string, FileAnalysis>,
+  aliases: PathAliases,
+): { file: string; symbol: SymbolInfo } | null {
+  const analysis = analyses.get(file);
+  if (!analysis) return null;
+  const candidates: { file: string; symbol: SymbolInfo }[] = [];
+  for (const s of analysis.symbols) {
+    if (s.kind === "function" && s.name === call.calleeName) {
+      candidates.push({ file, symbol: s });
+    }
+  }
+  for (const imp of analysis.imports) {
+    if (!imp.names.includes(call.calleeName)) continue;
+    for (const [otherFile, other] of analyses) {
+      if (otherFile === file) continue;
+      if (!moduleMatchesFile(imp.module, file, otherFile, aliases)) continue;
+      for (const s of other.symbols) {
+        if (s.kind === "function" && s.name === call.calleeName) {
+          candidates.push({ file: otherFile, symbol: s });
+        }
+      }
+    }
+  }
+  return candidates.length === 1 ? candidates[0] : null;
+}
+
+const MAX_RADIUS_NODES = 60;
+
+/** §5.8: at most 60 radius nodes, kept by degree; edges to dropped nodes go too. */
+function capRadiusByDegree(
+  nodes: GraphNode[],
+  edges: GraphEdge[],
+): { nodes: GraphNode[]; edges: GraphEdge[] } {
+  const offSpine = nodes.filter((n) => !n.onSpine);
+  if (offSpine.length <= MAX_RADIUS_NODES) return { nodes, edges };
+  const degree = new Map<string, number>();
+  for (const e of edges) {
+    degree.set(e.from, (degree.get(e.from) ?? 0) + 1);
+    degree.set(e.to, (degree.get(e.to) ?? 0) + 1);
+  }
+  const keep = new Set(
+    offSpine
+      .sort((a, b) => (degree.get(b.id) ?? 0) - (degree.get(a.id) ?? 0))
+      .slice(0, MAX_RADIUS_NODES)
+      .map((n) => n.id),
+  );
+  const keptNodes = nodes.filter((n) => n.onSpine || keep.has(n.id));
+  const ids = new Set(keptNodes.map((n) => n.id));
+  return {
+    nodes: keptNodes,
+    edges: edges.filter((e) => ids.has(e.from) && ids.has(e.to)),
+  };
 }
 
 /** §5.7 — the flagship. The trace is runtime truth: when consecutive resolved
@@ -298,7 +358,7 @@ function ghostHint(
  *  py: "services" → services.py · "pkg.mod" → pkg/mod.py
  *  js: "./util" (relative to the importer) · "@app/fx" via tsconfig paths,
  *      with .ts/.tsx/.js/… and /index.* extension probing. */
-function moduleMatchesFile(
+export function moduleMatchesFile(
   module: string,
   importerFile: string,
   file: string,

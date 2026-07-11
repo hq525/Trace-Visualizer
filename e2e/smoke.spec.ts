@@ -44,9 +44,14 @@ test.afterAll(() => {
 test("demo renders the spine, legend, and code panel", async ({ page }) => {
   await page.goto(url);
 
-  // spine: 1 external chip + 5 resolved app functions
-  await expect(page.locator("[data-node]")).toHaveCount(6);
+  // spine: 1 external chip + 5 resolved app functions, plus 1 radius callee
+  await expect(page.locator("[data-node]:not([data-radius])")).toHaveCount(6);
   await expect(page.locator('[data-node][data-kind="external-chip"]')).toHaveCount(1);
+  await expect(page.locator("[data-node][data-radius]")).toHaveCount(1);
+
+  // §7 Phase 3 acceptance: the demo shows a labeled ghost edge
+  await expect(page.locator("[data-ghost]")).toHaveCount(1);
+  await expect(page.getByText("decorator-dispatched (@pricer)")).toBeVisible();
 
   // legend is always visible
   await expect(page.getByText("runtime trace")).toBeVisible();

@@ -127,6 +127,29 @@ svg text {
   letter-spacing: 0.06em;
 }
 
+/* blast radius: quiet context around the spine (§5.8) */
+.node.radius {
+  opacity: 0.55;
+}
+.node.radius rect {
+  fill: #161c31;
+  stroke: #2c3355;
+  stroke-width: 1;
+}
+.node.radius .fn {
+  fill: #9aa2c6;
+  font-size: 10px;
+  font-weight: 400;
+}
+.node.radius .file {
+  fill: #5e668d;
+  font-size: 9px;
+}
+.overflow-marker {
+  fill: var(--faint);
+  font-size: 10px;
+}
+
 .edge-trace.draw {
   stroke-dasharray: 300;
   stroke-dashoffset: 300;
