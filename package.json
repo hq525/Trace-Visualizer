@@ -10,11 +10,7 @@
   "bin": {
     "crashpath": "./dist/cli/index.js"
   },
-  "files": [
-    "dist",
-    "grammars",
-    "demo"
-  ],
+  "files": ["dist", "grammars", "demo"],
   "scripts": {
     "build": "tsc -p tsconfig.json && npm --prefix ui run build",
     "e2e": "playwright test",
