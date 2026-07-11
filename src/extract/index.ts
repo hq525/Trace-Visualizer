@@ -2,7 +2,7 @@
 // Handles JSON-wrapped log lines, per-line log prefixes (k8s CRI, ISO+level,
 // NestJS), then anchors Python/V8 blocks.
 import { PY_ANCHOR, isGroupAnchor, parsePythonChain } from "../parsers/python.js";
-import type { ExtractedTrace } from "../parsers/types.js";
+import { type ExtractedTrace, isExternalPythonPath } from "../parsers/types.js";
 import { V8_AT, V8_HEADER, parseV8Block } from "../parsers/v8.js";
 
 const PREFIX_PATTERNS = [
@@ -82,9 +82,70 @@ export function extractTraces(text: string): ExtractedTrace[] {
       const r = parseV8Block(lines, i);
       traces.push({ language: "js", ...r.trace });
       i = r.next;
+    } else if (PYTEST_DIVIDER.test(lines[i])) {
+      const r = parsePytestSection(lines, i);
+      if (r) {
+        traces.push(r.trace);
+        i = r.next;
+      } else {
+        i++;
+      }
     } else {
       i++;
     }
   }
   return traces;
+}
+
+// pytest's default long format has no standard traceback: a test-name divider,
+// source context with `>` markers, `E   <Type>: <msg>` lines, and a final
+// `path:line: Type` location. --tb=native sections contain a real traceback
+// instead — those are left for the standard python anchor.
+const PYTEST_DIVIDER = /^_{5,}\s+(\S.*?)\s+_{5,}$/;
+const PYTEST_LOCATION = /^([^\s:][^:]*?):(\d+):\s+([A-Za-z_][\w.]*)\s*$/;
+const PYTEST_E_LINE = /^E\s{2,}(.*)$/;
+
+function parsePytestSection(
+  lines: string[],
+  start: number,
+): { trace: ExtractedTrace; next: number } | null {
+  const divM = lines[start].match(PYTEST_DIVIDER);
+  if (!divM) return null;
+  const testName = divM[1];
+  const eLines: string[] = [];
+  let location: { rawPath: string; line: number; type: string } | null = null;
+  let j = start + 1;
+  while (j < lines.length) {
+    const line = lines[j];
+    if (PYTEST_DIVIDER.test(line) || /^={5,}/.test(line)) break;
+    if (PY_ANCHOR.test(line) || isGroupAnchor(line)) return null; // native tb inside
+    const e = line.match(PYTEST_E_LINE);
+    if (e) eLines.push(e[1]);
+    const loc = line.match(PYTEST_LOCATION);
+    if (loc) {
+      location = { rawPath: loc[1], line: Number(loc[2]), type: loc[3] };
+      j++;
+      break;
+    }
+    j++;
+  }
+  if (!location || eLines.length === 0) return null;
+  let message = eLines.join("\n");
+  const typePrefix = `${location.type}: `;
+  if (message.startsWith(typePrefix)) message = message.slice(typePrefix.length);
+  return {
+    trace: {
+      language: "python",
+      exception: { type: location.type, message },
+      frames: [
+        {
+          rawPath: location.rawPath,
+          line: location.line,
+          symbol: testName,
+          isExternal: isExternalPythonPath(location.rawPath),
+        },
+      ],
+    },
+    next: j,
+  };
 }
