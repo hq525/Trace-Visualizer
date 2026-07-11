@@ -1,0 +1,53 @@
+import { type ChildProcess, execSync, spawn } from "node:child_process";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+
+const ROOT = fileURLToPath(new URL("..", import.meta.url));
+const CLI = path.join(ROOT, "dist/cli/index.js");
+
+let child: ChildProcess | null = null;
+
+beforeAll(() => {
+  execSync("npx tsc -p tsconfig.json", { cwd: ROOT, stdio: "pipe" });
+}, 60_000);
+
+afterAll(() => {
+  child?.kill();
+});
+
+describe("crashpath demo python (§7 Phase 1 acceptance)", () => {
+  it("serves the demo graph in under 5 seconds from process spawn", async () => {
+    const startedAt = Date.now();
+    child = spawn(process.execPath, [CLI, "demo", "python", "--no-open"], {
+      cwd: ROOT,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+
+    const url = await new Promise<string>((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error("no URL within 5s")), 5000);
+      let buffer = "";
+      child?.stdout?.on("data", (chunk: Buffer) => {
+        buffer += chunk.toString();
+        const m = buffer.match(/crashpath: (http:\/\/127\.0\.0\.1:\d+)/);
+        if (m) {
+          clearTimeout(timer);
+          resolve(m[1]);
+        }
+      });
+      child?.on("exit", (code) => reject(new Error(`demo exited early (${code})`)));
+    });
+
+    const res = await fetch(`${url}/api/graph`);
+    expect(res.status).toBe(200);
+    const graph = (await res.json()) as {
+      meta: { resolvedFrames: number };
+      nodes: { crash?: boolean }[];
+    };
+    expect(graph.meta.resolvedFrames).toBeGreaterThanOrEqual(5);
+    expect(graph.nodes.some((n) => n.crash)).toBe(true);
+
+    const elapsed = Date.now() - startedAt;
+    expect(elapsed).toBeLessThan(5000);
+  }, 20_000);
+});
