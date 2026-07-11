@@ -2,15 +2,19 @@
 // runtime trace edges, and §5.6 static call/import edges (unique-match only,
 // no type inference). Ghost edges and blast radius land in Phase 3.
 import { createHash } from "node:crypto";
+import path from "node:path";
 import type { FileAnalysis } from "../analyze/types.js";
 import type { Frame, ParsedTrace } from "../parsers/types.js";
 import type { ResolvedFrame } from "../resolve/index.js";
+import { expandAliases, type PathAliases } from "./tsconfig.js";
 import type { GraphEdge, GraphNode, TraceGraph } from "./types.js";
 
 export interface BuildMeta {
   repo: string;
   language: string;
   ref?: string;
+  /** tsconfig.json#paths aliases, best-effort (§5.4) */
+  pathAliases?: PathAliases;
 }
 
 export function buildGraph(
@@ -153,7 +157,7 @@ function coreGraph(
     if (crash) crash.crash = true;
   }
 
-  emitStaticCallEdges(byId, analyses, edges);
+  emitStaticCallEdges(byId, analyses, edges, meta.pathAliases ?? {});
 
   return {
     exception: trace.exception,
@@ -176,6 +180,7 @@ function emitStaticCallEdges(
   byId: Map<string, GraphNode>,
   analyses: Map<string, FileAnalysis>,
   edges: GraphEdge[],
+  aliases: PathAliases,
 ): void {
   const fnNode = (file: string, qualifiedName: string): GraphNode | undefined =>
     byId.get(hashId(file, qualifiedName));
@@ -203,7 +208,7 @@ function emitStaticCallEdges(
         if (!imp.names.includes(call.calleeName)) continue;
         for (const [otherFile, other] of analyses) {
           if (otherFile === file) continue;
-          if (!moduleMatchesFile(imp.module, otherFile)) continue;
+          if (!moduleMatchesFile(imp.module, file, otherFile, aliases)) continue;
           for (const s of other.symbols) {
             if (s.kind === "function" && s.name === call.calleeName) {
               candidates.push({ file: otherFile, qualifiedName: s.qualifiedName });
@@ -228,10 +233,41 @@ function emitStaticCallEdges(
   }
 }
 
-/** "services" matches "services.py" and "pkg/services.py"; "pkg.mod" matches "pkg/mod.py". */
-function moduleMatchesFile(module: string, file: string): boolean {
-  const asPath = `${module.split(".").join("/")}.py`;
-  return file === asPath || file.endsWith(`/${asPath}`);
+/** Language-aware import → file matching, best-effort (§5.4, §5.6):
+ *  py: "services" → services.py · "pkg.mod" → pkg/mod.py
+ *  js: "./util" (relative to the importer) · "@app/fx" via tsconfig paths,
+ *      with .ts/.tsx/.js/… and /index.* extension probing. */
+function moduleMatchesFile(
+  module: string,
+  importerFile: string,
+  file: string,
+  aliases: PathAliases,
+): boolean {
+  for (const candidate of expandAliases(module, aliases)) {
+    if (candidate.startsWith(".") && candidate.includes("/")) {
+      const base = path.posix.normalize(
+        path.posix.join(path.posix.dirname(importerFile.split(path.sep).join("/")), candidate),
+      );
+      if (matchesWithExtensions(base, file)) return true;
+    } else if (candidate.startsWith("./") || candidate.startsWith("../")) {
+      if (matchesWithExtensions(path.posix.normalize(candidate), file)) return true;
+    } else {
+      const asPath = candidate.includes("/") ? candidate : candidate.split(".").join("/");
+      if (file === `${asPath}.py` || file.endsWith(`/${asPath}.py`)) return true;
+      if (matchesWithExtensions(asPath, file)) return true;
+    }
+  }
+  return false;
+}
+
+const JS_EXTENSIONS = [".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs"];
+
+function matchesWithExtensions(base: string, file: string): boolean {
+  for (const ext of JS_EXTENSIONS) {
+    if (file === `${base}${ext}` || file.endsWith(`/${base}${ext}`)) return true;
+    if (file === `${base}/index${ext}` || file.endsWith(`/${base}/index${ext}`)) return true;
+  }
+  return false;
 }
 
 function chipLabel(frames: Frame[]): string {

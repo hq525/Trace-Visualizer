@@ -3,6 +3,7 @@
 import path from "node:path";
 import { SEARCHED_ANCHORS, extractTraces } from "./extract/index.js";
 import { buildGraph } from "./graph/build.js";
+import { loadTsconfigPaths } from "./graph/tsconfig.js";
 import type { TraceGraph } from "./graph/types.js";
 import { resolveTrace } from "./resolve/index.js";
 import { buildRepoIndex } from "./resolve/repo.js";
@@ -75,6 +76,7 @@ export async function runPipeline(
   const graph = buildGraph(trace, resolved, analyses, {
     repo: path.basename(path.resolve(repoRoot)),
     language: trace.language,
+    pathAliases: loadTsconfigPaths(path.resolve(repoRoot)),
   });
 
   if (graph.meta.resolvedFrames === 0) {
