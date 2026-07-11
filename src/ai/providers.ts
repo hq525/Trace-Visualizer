@@ -76,6 +76,9 @@ export async function complete(config: AiConfig, system: string, user: string): 
       model,
       stream: false,
       format: "json",
+      // thinking-mode models (qwen3 etc.) otherwise spend the whole token
+      // budget reasoning before emitting JSON
+      think: false,
       messages: [
         { role: "system", content: system },
         { role: "user", content: user },
