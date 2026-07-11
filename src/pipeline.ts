@@ -56,7 +56,7 @@ function firstLine(s: string): string {
 export async function runPipeline(
   text: string,
   repoRoot: string,
-  options: { pick?: number } = {},
+  options: { pick?: number; repoLabel?: string } = {},
 ): Promise<PipelineResult> {
   const traces = extractTraces(text);
   if (traces.length === 0) {
@@ -74,7 +74,7 @@ export async function runPipeline(
   await applySourcemaps(trace, index); // §5.3: rewrite generated-file frames in place
   const { resolved, analyses } = await resolveTrace(trace, index);
   const graph = buildGraph(trace, resolved, analyses, {
-    repo: path.basename(path.resolve(repoRoot)),
+    repo: options.repoLabel ?? path.basename(path.resolve(repoRoot)),
     language: trace.language,
     pathAliases: loadTsconfigPaths(path.resolve(repoRoot)),
   });

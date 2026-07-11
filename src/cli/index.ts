@@ -46,6 +46,7 @@ async function main(): Promise<void> {
 
   const subcommand = positionals[0];
   let repoRoot = values.repo ? path.resolve(values.repo) : findRepoRoot(process.cwd());
+  let repoLabel: string | undefined;
 
   let text: string | null = null;
   if (subcommand === "demo") {
@@ -58,6 +59,7 @@ async function main(): Promise<void> {
       return;
     }
     repoRoot = fileURLToPath(new URL(`../../demo/${flavor}`, import.meta.url));
+    repoLabel = flavor === "python" ? "shop (demo)" : "quotes (demo)";
     text = fs.readFileSync(path.join(repoRoot, "trace.txt"), "utf8");
   } else if (values.trace) {
     text = fs.readFileSync(values.trace, "utf8");
@@ -69,7 +71,7 @@ async function main(): Promise<void> {
   // the paste box and POSTs to /api/trace
   let initialGraph: TraceGraph | undefined;
   if (text !== null) {
-    const result = await runPipeline(text, repoRoot);
+    const result = await runPipeline(text, repoRoot, repoLabel ? { repoLabel } : {});
     if (!result.ok) {
       process.stderr.write(`${result.message}\n`);
       process.exitCode = result.exitCode;

@@ -56,7 +56,10 @@ function rewriteFrame(frame: Frame, index: RepoIndex, cache: Map<string, LoadedM
   frame.rawPath = normalizeJoin(loaded.baseDir, pos.source);
   frame.line = pos.line;
   frame.column = pos.column != null ? pos.column + 1 : undefined;
-  if (pos.name) frame.symbol = pos.name;
+  // The map's `name` is the identifier AT the position (often the thrown
+  // constructor), not the enclosing function — and the minified symbol is
+  // noise. Drop it: span resolution against the original source is exact.
+  frame.symbol = undefined;
 }
 
 /** null = not generated; consumer null = generated but map missing/broken. */

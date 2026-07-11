@@ -6,7 +6,7 @@ import path from "node:path";
 import type { FileAnalysis } from "../analyze/types.js";
 import type { Frame, ParsedTrace } from "../parsers/types.js";
 import type { ResolvedFrame } from "../resolve/index.js";
-import { expandAliases, type PathAliases } from "./tsconfig.js";
+import { type PathAliases, expandAliases } from "./tsconfig.js";
 import type { GraphEdge, GraphNode, TraceGraph } from "./types.js";
 
 export interface BuildMeta {
@@ -289,6 +289,7 @@ function chipLabel(frames: Frame[]): string {
 
 function packageOf(rawPath: string): string {
   const p = rawPath.split("\\").join("/");
+  if (p === "<anonymous>" || p === "<elided>" || p === "native") return "native";
   if (p.startsWith("<")) return "python-internals";
   for (const marker of ["/site-packages/", "/dist-packages/", "/node_modules/"]) {
     const at = p.indexOf(marker);
