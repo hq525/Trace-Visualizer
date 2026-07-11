@@ -59,6 +59,14 @@ async function main(): Promise<void> {
   let repoRoot = values.repo ? path.resolve(values.repo) : findRepoRoot(process.cwd());
   let repoLabel: string | undefined;
 
+  // §3.5: stdio MCP server — stdout belongs to JSON-RPC, so this branches
+  // before anything can print
+  if (subcommand === "mcp") {
+    const { runMcpServer } = await import("../mcp/index.js");
+    await runMcpServer();
+    return;
+  }
+
   // Flow D: crashpath export -t trace.txt -o failure.html|failure.svg
   if (subcommand === "export") {
     if (!values.trace || !values.output) {
