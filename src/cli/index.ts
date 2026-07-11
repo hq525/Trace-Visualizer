@@ -5,7 +5,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
-import { addRefWorktree } from "../gitref/index.js";
+import { renderHtml, renderSvg } from "../export/index.js";
+import { addRefWorktree, withRef } from "../gitref/index.js";
 import type { TraceGraph } from "../graph/types.js";
 import { runPipeline } from "../pipeline.js";
 import { startServer } from "../server/index.js";
@@ -13,9 +14,10 @@ import { startServer } from "../server/index.js";
 const HELP = `crashpath — paste a stack trace, see the failure path through your codebase
 
 Usage:
-  crashpath [options]                 Start UI (paste mode) for repo at cwd
-  crashpath demo [python]             Bundled demo, zero configuration
-  cmd 2>&1 | crashpath [options]      Pipe a trace in
+  crashpath [options]                     Start UI (paste mode) for repo at cwd
+  crashpath demo [python|node]            Bundled demo, zero configuration
+  crashpath export -t <file> -o <out>     Render standalone .html or .svg
+  cmd 2>&1 | crashpath [options]          Pipe a trace in
 
 Options:
   -t, --trace <file>   Read trace/log from file (or pipe via stdin)
@@ -34,6 +36,7 @@ async function main(): Promise<void> {
       trace: { type: "string", short: "t" },
       repo: { type: "string", short: "r" },
       ref: { type: "string" },
+      output: { type: "string", short: "o" },
       json: { type: "boolean", default: false },
       port: { type: "string" },
       "no-open": { type: "boolean", default: false },
@@ -49,6 +52,44 @@ async function main(): Promise<void> {
   const subcommand = positionals[0];
   let repoRoot = values.repo ? path.resolve(values.repo) : findRepoRoot(process.cwd());
   let repoLabel: string | undefined;
+
+  // Flow D: crashpath export -t trace.txt -o failure.html|failure.svg
+  if (subcommand === "export") {
+    if (!values.trace || !values.output) {
+      process.stderr.write(
+        "crashpath export: requires -t <trace-file> and -o <out.html|out.svg>\n",
+      );
+      process.exitCode = 1;
+      return;
+    }
+    const text = fs.readFileSync(values.trace, "utf8");
+    const outPath = path.resolve(values.output);
+    const format = path.extname(outPath);
+    if (format !== ".html" && format !== ".svg") {
+      process.stderr.write(
+        `crashpath export: unsupported format '${format}' (use .html or .svg)\n`,
+      );
+      process.exitCode = 1;
+      return;
+    }
+    const render = async (root: string): Promise<string | null> => {
+      const result = await runPipeline(text, root, values.ref ? { ref: values.ref } : {});
+      if (!result.ok) {
+        process.stderr.write(`${result.message}\n`);
+        process.exitCode = result.exitCode;
+        return null;
+      }
+      return format === ".svg" ? renderSvg(result.graph) : renderHtml(result.graph, root);
+    };
+    const content = values.ref
+      ? await withRef(repoRoot, values.ref, render)
+      : await render(repoRoot);
+    if (content !== null) {
+      fs.writeFileSync(outPath, content);
+      process.stdout.write(`crashpath: wrote ${outPath}\n`);
+    }
+    return;
+  }
 
   let text: string | null = null;
   if (subcommand === "demo") {

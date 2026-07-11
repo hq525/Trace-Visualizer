@@ -1,4 +1,6 @@
 import { type ChildProcess, execSync, spawn } from "node:child_process";
+import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { expect, test } from "@playwright/test";
@@ -67,6 +69,24 @@ test("demo renders the spine, legend, and code panel", async ({ page }) => {
   // keyboard: ← walks the spine
   await page.keyboard.press("ArrowLeft");
   await expect(page.locator("[data-panel]")).toContainText("collapsed frames");
+});
+
+test("exported HTML opens standalone from file:// (§7 Phase 3 acceptance)", async ({ page }) => {
+  const out = path.join(os.tmpdir(), `crashpath-export-${Date.now()}.html`);
+  execSync(
+    `node ${path.join(ROOT, "dist/cli/index.js")} export -t demo/python/trace.txt -r demo/python -o ${out}`,
+    { cwd: ROOT, stdio: "pipe" },
+  );
+  try {
+    await page.goto(`file://${out}`);
+    await expect(page.locator("[data-node]")).toHaveCount(7); // 6 spine + 1 radius
+    await expect(page.getByText("decorator-dispatched (@pricer)")).toBeVisible();
+    await page.locator("g.crash").click();
+    await expect(page.locator("#panel")).toContainText("fx.py:9");
+    await expect(page.locator("#panel")).toContainText("return RATES[currency]");
+  } finally {
+    fs.rmSync(out, { force: true });
+  }
 });
 
 test("demo node maps minified frames back to TS sources", async ({ page }) => {
