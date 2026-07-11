@@ -17,6 +17,7 @@ export function App() {
   const [phase, setPhase] = useState<Phase>({ kind: "loading" });
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [ghostOnly, setGhostOnly] = useState(false);
 
   useEffect(() => {
     fetchGraph().then((graph) => {
@@ -108,13 +109,30 @@ export function App() {
         <TracePicker options={phase.options} onPick={(i) => onPaste(phase.text, i)} />
       ) : (
         <>
-          <div className="flex items-center px-5 py-2 border-b border-[var(--line)] bg-[var(--board)]">
+          <div className="flex items-center gap-2 px-5 py-2 border-b border-[var(--line)] bg-[var(--board)]">
+            <button
+              type="button"
+              onClick={() => setGhostOnly((v) => !v)}
+              data-toggle-ghost
+              className={`rounded-md border px-2.5 py-1 text-[12px] ${
+                ghostOnly
+                  ? "border-[var(--ghost)] text-[var(--ghost)]"
+                  : "border-[var(--line)] text-[var(--muted)]"
+              }`}
+            >
+              ⚡ Ghost edges only
+            </button>
             <Legend />
           </div>
           <main className="flex flex-1 min-h-0">
             <div className="board flex-1 overflow-auto">
               {layout && (
-                <GraphView layout={layout} selectedId={selectedId} onSelect={setSelectedId} />
+                <GraphView
+                  layout={layout}
+                  selectedId={selectedId}
+                  onSelect={setSelectedId}
+                  ghostOnly={ghostOnly}
+                />
               )}
             </div>
             {phase.kind === "graph" && (

@@ -22,8 +22,14 @@ export interface PlacedNode {
 export interface PlacedEdge {
   id: string;
   kind: GraphEdge["kind"];
+  fromId: string;
+  toId: string;
   /** svg path data */
   path: string;
+  /** ghost edges: §5.7 hint, rendered near the arc apex */
+  label?: string;
+  labelX?: number;
+  labelY?: number;
 }
 
 export interface Layout {
@@ -60,7 +66,29 @@ export function layoutGraph(graph: TraceGraph): Layout {
     if (!from || !to) continue;
     if (e.kind === "trace") {
       const y = SPINE_Y + NODE_H / 2;
-      edges.push({ id: e.id, kind: e.kind, path: `M ${from.x + from.w} ${y} L ${to.x} ${y}` });
+      edges.push({
+        id: e.id,
+        kind: e.kind,
+        fromId: e.from,
+        toId: e.to,
+        path: `M ${from.x + from.w} ${y} L ${to.x} ${y}`,
+      });
+    } else if (e.kind === "ghost") {
+      // dynamic-dispatch hop: dashed arc above the spine (§5.7)
+      const fx = from.x + from.w / 2;
+      const tx = to.x + to.w / 2;
+      const midX = (fx + tx) / 2;
+      const rise = Math.min(from.y, to.y) - 42;
+      edges.push({
+        id: e.id,
+        kind: e.kind,
+        fromId: e.from,
+        toId: e.to,
+        path: `M ${fx} ${from.y} Q ${midX} ${rise} ${tx} ${to.y}`,
+        label: e.ghostHint,
+        labelX: midX,
+        labelY: rise - 6,
+      });
     } else {
       // static context edges arc under the spine
       const y0 = from.y + from.h;
@@ -70,6 +98,8 @@ export function layoutGraph(graph: TraceGraph): Layout {
       edges.push({
         id: e.id,
         kind: e.kind,
+        fromId: e.from,
+        toId: e.to,
         path: `M ${from.x + from.w / 2} ${y0} Q ${midX} ${dip} ${to.x + to.w / 2} ${y1}`,
       });
     }

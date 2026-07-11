@@ -4,12 +4,18 @@ export function GraphView({
   layout,
   selectedId,
   onSelect,
+  ghostOnly = false,
 }: {
   layout: Layout;
   selectedId: string | null;
   onSelect: (id: string) => void;
+  ghostOnly?: boolean;
 }) {
   const crash = layout.nodes.find((p) => p.node.crash);
+  const ghostEndpoints = new Set(
+    layout.edges.filter((e) => e.kind === "ghost").flatMap((e) => [e.fromId, e.toId]),
+  );
+  const dimmed = (on: boolean) => (ghostOnly && !on ? { opacity: 0.15 } : undefined);
   return (
     <svg
       width={layout.width}
@@ -20,9 +26,9 @@ export function GraphView({
       className="block"
     >
       {layout.edges
-        .filter((e) => e.kind !== "trace")
+        .filter((e) => e.kind !== "trace" && e.kind !== "ghost")
         .map((e) => (
-          <path key={e.id} className={`edge-${e.kind}`} d={e.path} />
+          <path key={e.id} className={`edge-${e.kind}`} d={e.path} style={dimmed(false)} />
         ))}
       {layout.edges
         .filter((e) => e.kind === "trace")
@@ -31,14 +37,33 @@ export function GraphView({
             key={e.id}
             className="edge-trace draw"
             d={e.path}
-            style={{ animationDelay: `${i * 0.09}s` }}
+            style={{ animationDelay: `${i * 0.09}s`, ...dimmed(false) }}
           />
+        ))}
+      {layout.edges
+        .filter((e) => e.kind === "ghost")
+        .map((e) => (
+          <g key={e.id} data-ghost>
+            <path className="edge-ghost" d={e.path} />
+            {e.labelX !== undefined && (
+              <>
+                <text className="ghost-glyph" x={e.labelX - 5} y={(e.labelY ?? 0) + 20}>
+                  ⚡
+                </text>
+                <text className="ghost-label" x={e.labelX} y={e.labelY} textAnchor="middle">
+                  {e.label}
+                </text>
+              </>
+            )}
+          </g>
         ))}
       {crash && (
         <circle className="pulse" cx={crash.x + crash.w / 2} cy={crash.y + crash.h / 2} r={40} />
       )}
       {layout.nodes.map((p) => (
-        <Node key={p.node.id} placed={p} selected={p.node.id === selectedId} onSelect={onSelect} />
+        <g key={p.node.id} style={dimmed(ghostEndpoints.has(p.node.id))}>
+          <Node placed={p} selected={p.node.id === selectedId} onSelect={onSelect} />
+        </g>
       ))}
     </svg>
   );

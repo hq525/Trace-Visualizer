@@ -158,6 +158,7 @@ function coreGraph(
   }
 
   emitStaticCallEdges(byId, analyses, edges, meta.pathAliases ?? {});
+  emitGhostEdges(spineIds, byId, analyses, edges);
 
   return {
     exception: trace.exception,
@@ -231,6 +232,66 @@ function emitStaticCallEdges(
       });
     }
   }
+}
+
+/** §5.7 — the flagship. The trace is runtime truth: when consecutive resolved
+ * FUNCTION nodes on the spine have no static call edge between them, that hop
+ * happened through dynamic dispatch — emit a ghost edge and say why we think
+ * so. Pairs involving module-level or unresolved nodes are skipped: we cannot
+ * honestly assess static edges there. */
+function emitGhostEdges(
+  spineIds: string[],
+  byId: Map<string, GraphNode>,
+  analyses: Map<string, FileAnalysis>,
+  edges: GraphEdge[],
+): void {
+  const spineNodes = spineIds
+    .filter((id, i) => i === 0 || id !== spineIds[i - 1])
+    .map((id) => byId.get(id))
+    .filter((n): n is GraphNode => n !== undefined);
+
+  const staticPairs = new Set(
+    edges.filter((e) => e.kind === "call" || e.kind === "import").map((e) => `${e.from}->${e.to}`),
+  );
+
+  const inRepo = spineNodes.filter((n) => n.kind !== "external-chip");
+  let g = 0;
+  for (let i = 0; i + 1 < inRepo.length; i++) {
+    const a = inRepo[i];
+    const b = inRepo[i + 1];
+    if (a.kind !== "function" || b.kind !== "function") continue;
+    if (staticPairs.has(`${a.id}->${b.id}`)) continue;
+    edges.push({
+      id: `ghost:${g++}`,
+      from: a.id,
+      to: b.id,
+      kind: "ghost",
+      evidence: "runtime",
+      ghostHint: ghostHint(a, b, spineNodes, analyses),
+    });
+  }
+}
+
+/** §5.7 hint priority: decorated callee → chip-crossing → dynamic dispatch. */
+function ghostHint(
+  a: GraphNode,
+  b: GraphNode,
+  spineNodes: GraphNode[],
+  analyses: Map<string, FileAnalysis>,
+): string {
+  const decorators =
+    (b.file &&
+      analyses.get(b.file)?.symbols.find((s) => s.qualifiedName === b.qualifiedName)?.decorators) ||
+    [];
+  if (decorators.length > 0) return `decorator-dispatched (@${decorators[0]})`;
+
+  const ai = spineNodes.findIndex((n) => n.id === a.id);
+  const bi = spineNodes.findIndex((n) => n.id === b.id);
+  const crossesChip = spineNodes
+    .slice(Math.min(ai, bi) + 1, Math.max(ai, bi))
+    .some((n) => n.kind === "external-chip");
+  if (crossesChip) return "through framework/library";
+  return "dynamic dispatch";
 }
 
 /** Language-aware import → file matching, best-effort (§5.4, §5.6):

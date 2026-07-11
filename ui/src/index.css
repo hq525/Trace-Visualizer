@@ -115,6 +115,16 @@ svg text {
   stroke-width: 2;
   fill: none;
   stroke-dasharray: 6 5;
+  filter: drop-shadow(0 0 4px rgba(179, 136, 255, 0.4));
+}
+.ghost-glyph {
+  fill: var(--ghost);
+  font-size: 13px;
+}
+.ghost-label {
+  fill: var(--ghost);
+  font-size: 9.5px;
+  letter-spacing: 0.06em;
 }
 
 .edge-trace.draw {

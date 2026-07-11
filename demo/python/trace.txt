@@ -123,9 +123,9 @@ Traceback (most recent call last):
     result = context.run(func, *args)
   File "/home/dev/shop/app.py", line 9, in read_product
     return build_quote(sku, currency)
-  File "/home/dev/shop/services.py", line 14, in build_quote
-    total_cents = price_with_tax(product, currency)
-  File "/home/dev/shop/services.py", line 9, in price_with_tax
+  File "/home/dev/shop/services.py", line 25, in build_quote
+    total_cents = PRICERS[product["kind"]](product, currency)
+  File "/home/dev/shop/services.py", line 20, in price_with_tax
     return convert(taxed_cents, currency)
   File "/home/dev/shop/fx.py", line 13, in convert
     return round(cents * _lookup_rate(currency))
