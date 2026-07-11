@@ -445,7 +445,7 @@ If total spend threatens to exceed 6 weekends: cut Phase 4 AI (keep MCP), cut PN
 
 ## 10. Housekeeping
 
-- [x] Verify `tracemap` on npm + GitHub; if taken, evaluate `crashpath` / `stackscope` / `faultline` (avoid `traceview` — Android tool; `tracepath` — Linux util). Grab the name + GitHub org same day. **→ DECIDED: `crashpath`** (tracemap npm was free but GitHub org squatted; crashpath free on both). npm publish + GitHub org grab still pending (needs owner credentials).
+- [x] Verify `tracemap` on npm + GitHub; if taken, evaluate `crashpath` / `stackscope` / `faultline` (avoid `traceview` — Android tool; `tracepath` — Linux util). Grab the name + GitHub org same day. **→ DECIDED: `crashpath`** (tracemap npm was free but GitHub org squatted; crashpath free on both). **npm name reserved 2026-07-11: `crashpath@0.0.1` published** (placeholder with dev notice; launch publishes 0.1.0 over it). Optional remaining: rename the GitHub repo Trace-Visualizer → crashpath before links spread.
 - [ ] `LICENSE` MIT · `SECURITY.md` (localhost-only posture) · issue templates (bug template asks for the raw trace!).
 - [ ] Conventional commits; release-please or changesets for versioning; `npm publish --provenance`.
 - [ ] Add repo-specific `CLAUDE.md` derived from the existing solo-agentic guardrails: pnpm, biome, vitest, "never touch fixtures/golden files without human approval", "UI changes require screenshot in PR description".

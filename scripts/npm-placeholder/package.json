@@ -1,0 +1,15 @@
+{
+  "name": "crashpath",
+  "version": "0.0.1",
+  "description": "Paste a stack trace, see the failure as a path through your codebase graph. Post-mortem, local-first, zero setup. (Name reservation — v0.1 in active development.)",
+  "license": "MIT",
+  "bin": {
+    "crashpath": "./cli.js"
+  },
+  "files": ["cli.js", "README.md"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hq525/Trace-Visualizer.git"
+  },
+  "keywords": ["stack-trace", "traceback", "debugging", "visualization", "post-mortem"]
+}
