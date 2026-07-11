@@ -26,10 +26,16 @@ const MAX_FILES = 20_000;
 
 export function buildRepoIndex(root: string): RepoIndex {
   const absRoot = path.resolve(root);
-  const git = spawnSync("git", ["-C", absRoot, "ls-files", "-z"], {
-    encoding: "utf8",
-    maxBuffer: 64 * 1024 * 1024,
-  });
+  // --others --exclude-standard: untracked-but-not-ignored files count too —
+  // a freshly added source file must still resolve
+  const git = spawnSync(
+    "git",
+    ["-C", absRoot, "ls-files", "-z", "--cached", "--others", "--exclude-standard"],
+    {
+      encoding: "utf8",
+      maxBuffer: 64 * 1024 * 1024,
+    },
+  );
   if (git.status === 0 && git.stdout.length > 0) {
     const files = git.stdout.split("\0").filter((f) => f.length > 0);
     return { root: absRoot, files };

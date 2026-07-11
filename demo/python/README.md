@@ -1,7 +1,8 @@
 # crashpath demo: shop
 
-A deliberately buggy FastAPI mini-app. `GET /products/sku-404` raises
-`KeyError: 'sku-404'` inside `store.get_product`.
+A deliberately buggy FastAPI mini-app. `GET /products/sku-1?currency=USD%20`
+(note the trailing space — a classic unsanitized-query bug) raises
+`KeyError: 'USD '` five frames deep, inside `fx._lookup_rate`.
 
 `trace.txt` is a **pre-recorded** real traceback from running this app —
 `crashpath demo python` never executes this code, it only maps the trace onto

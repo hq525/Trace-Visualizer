@@ -1,9 +1,13 @@
 #!/usr/bin/env node
 // crashpath CLI (§3.2). Zero CLI deps: node:util parseArgs.
+import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
+import type { TraceGraph } from "../graph/types.js";
 import { runPipeline } from "../pipeline.js";
+import { startServer } from "../server/index.js";
 
 const HELP = `crashpath — paste a stack trace, see the failure path through your codebase
 
@@ -41,43 +45,60 @@ async function main(): Promise<void> {
   }
 
   const subcommand = positionals[0];
-  if (subcommand === "demo") {
-    process.stderr.write("crashpath demo: arriving in a later task of Phase 1.\n");
-    process.exitCode = 1;
-    return;
-  }
-
-  const repoRoot = values.repo ? path.resolve(values.repo) : findRepoRoot(process.cwd());
+  let repoRoot = values.repo ? path.resolve(values.repo) : findRepoRoot(process.cwd());
 
   let text: string | null = null;
-  if (values.trace) {
+  if (subcommand === "demo") {
+    const flavor = positionals[1] ?? "python";
+    if (flavor !== "python") {
+      process.stderr.write(`crashpath demo: unknown flavor '${flavor}' (available: python)\n`);
+      process.exitCode = 1;
+      return;
+    }
+    repoRoot = fileURLToPath(new URL("../../demo/python", import.meta.url));
+    text = fs.readFileSync(path.join(repoRoot, "trace.txt"), "utf8");
+  } else if (values.trace) {
     text = fs.readFileSync(values.trace, "utf8");
   } else if (!process.stdin.isTTY) {
     text = await readStdin();
   }
 
-  if (text === null) {
-    process.stderr.write(
-      "crashpath: no input. Pass -t <file>, pipe a trace via stdin, or wait for paste mode (next task).\n",
-    );
+  // paste mode: no input → start the server with an empty graph; the UI shows
+  // the paste box and POSTs to /api/trace
+  let initialGraph: TraceGraph | undefined;
+  if (text !== null) {
+    const result = await runPipeline(text, repoRoot);
+    if (!result.ok) {
+      process.stderr.write(`${result.message}\n`);
+      process.exitCode = result.exitCode;
+      return;
+    }
+    if (values.json) {
+      process.stdout.write(`${JSON.stringify(result.graph, null, 2)}\n`);
+      return;
+    }
+    initialGraph = result.graph;
+  } else if (values.json) {
+    process.stderr.write("crashpath: --json needs a trace via -t <file> or stdin.\n");
     process.exitCode = 1;
     return;
   }
 
-  const result = await runPipeline(text, repoRoot);
-  if (!result.ok) {
-    process.stderr.write(`${result.message}\n`);
-    process.exitCode = result.exitCode;
-    return;
-  }
+  const server = await startServer({
+    repoRoot,
+    port: values.port ? Number(values.port) : 0,
+    ...(initialGraph ? { initialGraph } : {}),
+  });
+  process.stdout.write(`crashpath: ${server.url}\n`);
+  if (!values["no-open"]) openBrowser(server.url);
+}
 
-  if (values.json) {
-    process.stdout.write(`${JSON.stringify(result.graph, null, 2)}\n`);
-    return;
-  }
-
-  process.stderr.write("crashpath: UI server arrives in the next task; use --json for now.\n");
-  process.exitCode = 1;
+function openBrowser(url: string): void {
+  const cmd =
+    process.platform === "darwin" ? "open" : process.platform === "win32" ? "start" : "xdg-open";
+  spawn(cmd, [url], { stdio: "ignore", detached: true, shell: process.platform === "win32" })
+    .on("error", () => {})
+    .unref();
 }
 
 function findRepoRoot(from: string): string {

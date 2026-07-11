@@ -24,8 +24,8 @@ describe("trace graph builder (§5.9)", () => {
     const spine = graph.nodes.filter((n) => n.onSpine);
     const crash = spine[spine.length - 1];
     expect(crash.crash).toBe(true);
-    expect(crash.name).toBe("get_product");
-    expect(crash.file).toBe("store.py");
+    expect(crash.name).toBe("_lookup_rate");
+    expect(crash.file).toBe("fx.py");
   });
 
   it("collapses consecutive external frames into chips", () => {
@@ -35,10 +35,16 @@ describe("trace graph builder (§5.9)", () => {
     expect(chips[0].onSpine).toBe(true);
   });
 
-  it("keeps the three app frames as resolved function nodes in spine order", () => {
+  it("keeps the five app frames as resolved function nodes in spine order", () => {
     const fns = graph.nodes.filter((n) => n.onSpine && n.kind === "function");
     const names = fns.map((n) => n.name);
-    expect(names).toEqual(["read_product", "price_with_tax", "get_product"]);
+    expect(names).toEqual([
+      "read_product",
+      "build_quote",
+      "price_with_tax",
+      "convert",
+      "_lookup_rate",
+    ]);
     const idx = fns.map((n) => n.frameIndex ?? -1);
     expect([...idx].sort((a, b) => a - b)).toEqual(idx);
   });

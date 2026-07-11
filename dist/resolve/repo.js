@@ -18,7 +18,9 @@ const SKIP_DIRS = new Set([
 const MAX_FILES = 20_000;
 export function buildRepoIndex(root) {
     const absRoot = path.resolve(root);
-    const git = spawnSync("git", ["-C", absRoot, "ls-files", "-z"], {
+    // --others --exclude-standard: untracked-but-not-ignored files count too —
+    // a freshly added source file must still resolve
+    const git = spawnSync("git", ["-C", absRoot, "ls-files", "-z", "--cached", "--others", "--exclude-standard"], {
         encoding: "utf8",
         maxBuffer: 64 * 1024 * 1024,
     });

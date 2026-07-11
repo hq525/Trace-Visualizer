@@ -122,10 +122,15 @@ Traceback (most recent call last):
   File "/home/dev/shop/.venv/lib/python3.13/site-packages/anyio/_backends/_asyncio.py", line 1029, in run
     result = context.run(func, *args)
   File "/home/dev/shop/app.py", line 9, in read_product
-    return price_with_tax(sku)
-  File "/home/dev/shop/services.py", line 7, in price_with_tax
-    product = get_product(sku)
-  File "/home/dev/shop/store.py", line 8, in get_product
-    return CATALOG[sku]
-           ~~~~~~~^^^^^
-KeyError: 'sku-404'
+    return build_quote(sku, currency)
+  File "/home/dev/shop/services.py", line 14, in build_quote
+    total_cents = price_with_tax(product, currency)
+  File "/home/dev/shop/services.py", line 9, in price_with_tax
+    return convert(taxed_cents, currency)
+  File "/home/dev/shop/fx.py", line 13, in convert
+    return round(cents * _lookup_rate(currency))
+                         ~~~~~~~~~~~~^^^^^^^^^^
+  File "/home/dev/shop/fx.py", line 9, in _lookup_rate
+    return RATES[currency]
+           ~~~~~^^^^^^^^^^
+KeyError: 'USD '
