@@ -1,7 +1,27 @@
 import { useEffect, useState } from "react";
-import { type GraphNode, type SourceSnippet, type TraceGraph, fetchSource } from "../api.js";
+import {
+  type AiAnnotation,
+  type GraphNode,
+  type SourceSnippet,
+  type TraceGraph,
+  fetchSource,
+} from "../api.js";
 
-export function SidePanel({ graph, node }: { graph: TraceGraph; node: GraphNode | null }) {
+export interface AiPanelProps {
+  annotation: AiAnnotation | null;
+  busy: boolean;
+  onAnalyze: () => void;
+}
+
+export function SidePanel({
+  graph,
+  node,
+  ai = null,
+}: {
+  graph: TraceGraph;
+  node: GraphNode | null;
+  ai?: AiPanelProps | null;
+}) {
   const [snippet, setSnippet] = useState<SourceSnippet | null>(null);
 
   useEffect(() => {
@@ -14,7 +34,7 @@ export function SidePanel({ graph, node }: { graph: TraceGraph; node: GraphNode 
   if (!node) {
     return (
       <aside className="w-[360px] flex-none border-l border-[var(--line)] bg-[var(--panel)] p-5 text-[13px] text-[var(--faint)]">
-        Click a node — or walk the spine with ← → .
+        Click a node — or walk the spine with ← → .{ai && <AiSection ai={ai} node={null} />}
       </aside>
     );
   }
@@ -110,7 +130,78 @@ export function SidePanel({ graph, node }: { graph: TraceGraph; node: GraphNode 
           ))}
         </div>
       )}
+
+      {ai && <AiSection ai={ai} node={node} />}
     </aside>
+  );
+}
+
+/** §3.4: everything below is INFERENCE, clearly badged — never graph truth. */
+function AiSection({ ai, node }: { ai: AiPanelProps; node: GraphNode | null }) {
+  const a = ai.annotation;
+  const frameNote =
+    a && node?.frameIndex !== undefined
+      ? a.per_frame_notes.find((n) => n.frameIndex === node.frameIndex)
+      : undefined;
+  return (
+    <div
+      className="border-t-2 border-[rgba(179,136,255,.35)] px-4 py-3"
+      data-ai-panel
+      style={{ background: "rgba(179,136,255,.04)" }}
+    >
+      <div className="flex items-center gap-2 pb-2">
+        <span className="rounded border border-[rgba(179,136,255,.4)] bg-[rgba(179,136,255,.1)] px-2 py-0.5 text-[10px] uppercase tracking-wider text-[var(--ghost)]">
+          ✨ AI inference
+        </span>
+        <button
+          type="button"
+          onClick={ai.onAnalyze}
+          disabled={ai.busy}
+          data-ai-analyze
+          className="ml-auto rounded border border-[var(--line)] px-2 py-0.5 text-[11px] text-[var(--muted)] hover:text-[var(--text)] disabled:opacity-40"
+        >
+          {ai.busy ? "analyzing…" : a ? "regenerate" : "analyze"}
+        </button>
+      </div>
+      {!a ? (
+        <p className="text-[12px] text-[var(--faint)]">
+          Optional hypothesis from your configured model. The graph above stays ground truth.
+        </p>
+      ) : (
+        <div className="flex flex-col gap-2 text-[12px]">
+          <p className="text-[var(--text)]">
+            {a.root_cause_hypothesis}{" "}
+            <span className="text-[var(--faint)]">({a.confidence} confidence)</span>
+          </p>
+          {frameNote && (
+            <p className="mono text-[11px] text-[var(--muted)]">this frame: {frameNote.note}</p>
+          )}
+          {a.ghost_edge_explanations.length > 0 && (
+            <div>
+              <Cap>ghost edges, explained</Cap>
+              {a.ghost_edge_explanations.map((g) => (
+                <p key={g.edgeId} className="mono text-[11px] text-[var(--muted)]">
+                  {g.mechanism}: {g.explanation}
+                </p>
+              ))}
+            </div>
+          )}
+          {a.suggested_fix && (
+            <div>
+              <Cap>suggested fix</Cap>
+              <p className="mono text-[11px] text-[var(--muted)]">
+                {a.suggested_fix.file}: {a.suggested_fix.description}
+              </p>
+              {a.suggested_fix.diff && (
+                <pre className="mono mt-1 overflow-x-auto rounded border border-[var(--line)] p-2 text-[10.5px] text-[#c3e88d]">
+                  {a.suggested_fix.diff}
+                </pre>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
