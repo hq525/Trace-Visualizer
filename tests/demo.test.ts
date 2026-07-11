@@ -51,3 +51,42 @@ describe("crashpath demo python (§7 Phase 1 acceptance)", () => {
     expect(elapsed).toBeLessThan(5000);
   }, 20_000);
 });
+
+describe("crashpath demo node (§7 Phase 2 acceptance)", () => {
+  it("serves a graph whose crash frame was rewritten via sourcemap", async () => {
+    const child2 = spawn(process.execPath, [CLI, "demo", "node", "--no-open"], {
+      cwd: ROOT,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    try {
+      const url = await new Promise<string>((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error("no URL within 5s")), 5000);
+        let buffer = "";
+        child2.stdout?.on("data", (chunk: Buffer) => {
+          buffer += chunk.toString();
+          const m = buffer.match(/crashpath: (http:\/\/127\.0\.0\.1:\d+)/);
+          if (m) {
+            clearTimeout(timer);
+            resolve(m[1]);
+          }
+        });
+        child2.on("exit", (code) => reject(new Error(`demo node exited early (${code})`)));
+      });
+
+      const res = await fetch(`${url}/api/graph`);
+      expect(res.status).toBe(200);
+      const graph = (await res.json()) as {
+        meta: { language: string };
+        nodes: { crash?: boolean; file?: string; badges: string[] }[];
+      };
+      expect(graph.meta.language).toBe("js");
+      const crash = graph.nodes.find((n) => n.crash);
+      expect(crash?.file).toBe("src/pricing.ts");
+      expect(crash?.badges).toContain("via-sourcemap");
+      const mapped = graph.nodes.filter((n) => n.badges.includes("via-sourcemap"));
+      expect(mapped.length).toBeGreaterThanOrEqual(2);
+    } finally {
+      child2.kill();
+    }
+  }, 20_000);
+});

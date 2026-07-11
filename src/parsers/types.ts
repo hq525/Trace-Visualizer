@@ -14,6 +14,10 @@ export interface Frame {
   repeated?: number;
   /** an at-line we could not decompose; kept visible, never resolved */
   unparsed?: boolean;
+  /** original compiled path when this frame was rewritten via a sourcemap */
+  mappedFrom?: string;
+  /** the frame sits in a generated file whose sourcemap is missing/broken */
+  noSourcemap?: boolean;
 }
 
 export interface ParsedTrace {

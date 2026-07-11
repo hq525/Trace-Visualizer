@@ -1,0 +1,15 @@
+{
+  "language": "python",
+  "goldenOrigin": "hand-transcribed (pytest default long format has no standard traceback; frame = the `path:line: Type` location line, symbol = the test name from the section divider)",
+  "exception": {
+    "type": "AssertionError",
+    "message": "fee made amount negative: -0.20"
+  },
+  "frames": [
+    {
+      "rawPath": "test_pricing.py",
+      "line": 10,
+      "symbol": "test_fee_never_makes_amount_negative"
+    }
+  ]
+}

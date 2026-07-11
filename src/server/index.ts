@@ -6,7 +6,7 @@ import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
 import type { TraceGraph } from "../graph/types.js";
-import { runPipeline } from "../pipeline.js";
+import { listTraces, runPipeline } from "../pipeline.js";
 
 export interface ServerOptions {
   repoRoot: string;
@@ -36,13 +36,20 @@ export async function startServer(options: ServerOptions): Promise<RunningServer
 
   app.post("/api/trace", async (c) => {
     let text: string;
+    let pick: number | undefined;
     try {
-      const body = (await c.req.json()) as { text?: string };
+      const body = (await c.req.json()) as { text?: string; pick?: number };
       text = body.text ?? "";
+      pick = body.pick;
     } catch {
-      return c.json({ message: "expected JSON body: { text: string }" }, 400);
+      return c.json({ message: "expected JSON body: { text: string, pick?: number }" }, 400);
     }
-    const result = await runPipeline(text, repoRoot);
+    // several distinct traces and no choice made yet → let the human pick (§5.1.4)
+    const summaries = listTraces(text);
+    if (summaries.length > 1 && pick === undefined) {
+      return c.json({ picker: summaries });
+    }
+    const result = await runPipeline(text, repoRoot, pick === undefined ? {} : { pick });
     if (!result.ok) {
       return c.json({ message: result.message }, result.exitCode === 2 ? 400 : 422);
     }

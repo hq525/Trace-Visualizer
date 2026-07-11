@@ -1,0 +1,15 @@
+file:///home/dev/quotes/dist/bundle.js:1
+"use strict";function o(e){return(e.bid+e.ask)/2}function i(e){let r=o(e);return(e.ask-e.bid)/r*1e4}function t(e,r){let n=i(e);if(n>r)throw new RangeError(`spread ${n.toFixed(1)}bps exceeds limit ${r}bps for ${e.symbol}`);return e}function u(){return[{symbol:"AAPL",bid:227.1,ask:227.12},{symbol:"ILLIQ",bid:4.1,ask:5.9}]}function s(e){return u().map(r=>t(r,e))}s(50);
+                                                                                                                                            ^
+
+RangeError: spread 3600.0bps exceeds limit 50bps for ILLIQ
+    at t (file:///home/dev/quotes/dist/bundle.js:1:141)
+    at file:///home/dev/quotes/dist/bundle.js:1:355
+    at Array.map (<anonymous>)
+    at s (file:///home/dev/quotes/dist/bundle.js:1:348)
+    at file:///home/dev/quotes/dist/bundle.js:1:363
+    at ModuleJob.run (node:internal/modules/esm/module_job:271:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:547:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5)
+
+Node.js v22.13.0

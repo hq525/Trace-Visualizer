@@ -65,6 +65,37 @@ export function buildRepoIndex(root: string): RepoIndex {
   return { root: absRoot, files };
 }
 
+const GENERATED_DIRS = new Set(["dist", "build", ".next", "out"]);
+const MAX_GENERATED_FILES = 5000;
+
+/** Generated JS (dist/build/.next/out) is skipped by the main index — and
+ * usually gitignored — but sourcemap resolution (§5.3) must find those files
+ * to read their maps. Separate bounded walk, generated dirs only. */
+export function listGeneratedFiles(root: string): string[] {
+  const absRoot = path.resolve(root);
+  const files: string[] = [];
+  const walk = (dir: string, insideGenerated: boolean): void => {
+    if (files.length >= MAX_GENERATED_FILES) return;
+    let entries: fs.Dirent[];
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const e of entries) {
+      const abs = path.join(dir, e.name);
+      if (e.isDirectory()) {
+        if (e.name === "node_modules" || e.name === ".git" || e.name === ".venv") continue;
+        walk(abs, insideGenerated || GENERATED_DIRS.has(e.name));
+      } else if (e.isFile() && insideGenerated && /\.(js|mjs|cjs)$/.test(e.name)) {
+        files.push(path.relative(absRoot, abs).split(path.sep).join("/"));
+      }
+    }
+  };
+  walk(absRoot, false);
+  return files;
+}
+
 /** Basename-only matches across more than this many files are rejected. */
 const MAX_BASENAME_FANOUT = 3;
 

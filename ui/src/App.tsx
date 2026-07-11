@@ -1,12 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { type TraceGraph, fetchGraph, postTrace } from "./api.js";
+import { type TraceGraph, type TraceSummary, fetchGraph, postTrace } from "./api.js";
 import { GraphView } from "./components/GraphView.js";
 import { Legend } from "./components/Legend.js";
 import { PasteBox } from "./components/PasteBox.js";
 import { SidePanel } from "./components/SidePanel.js";
+import { TracePicker } from "./components/TracePicker.js";
 import { layoutGraph } from "./layout.js";
 
-type Phase = { kind: "loading" } | { kind: "empty" } | { kind: "graph"; graph: TraceGraph };
+type Phase =
+  | { kind: "loading" }
+  | { kind: "empty" }
+  | { kind: "picker"; text: string; options: TraceSummary[] }
+  | { kind: "graph"; graph: TraceGraph };
 
 export function App() {
   const [phase, setPhase] = useState<Phase>({ kind: "loading" });
@@ -24,15 +29,20 @@ export function App() {
     });
   }, []);
 
-  const onPaste = useCallback(async (text: string) => {
-    const result = await postTrace(text);
-    if (result.ok) {
-      setPhase({ kind: "graph", graph: result.graph });
-      setSelectedId(result.graph.nodes.find((n) => n.crash)?.id ?? null);
-      setToast(null);
-    } else {
+  const onPaste = useCallback(async (text: string, pick?: number) => {
+    const result = await postTrace(text, pick);
+    if (!result.ok) {
       setToast(result.message);
+      return;
     }
+    if ("picker" in result) {
+      setPhase({ kind: "picker", text, options: result.picker });
+      setToast(null);
+      return;
+    }
+    setPhase({ kind: "graph", graph: result.graph });
+    setSelectedId(result.graph.nodes.find((n) => n.crash)?.id ?? null);
+    setToast(null);
   }, []);
 
   const layout = useMemo(() => (phase.kind === "graph" ? layoutGraph(phase.graph) : null), [phase]);
@@ -94,6 +104,8 @@ export function App() {
 
       {phase.kind === "empty" ? (
         <PasteBox onSubmit={onPaste} />
+      ) : phase.kind === "picker" ? (
+        <TracePicker options={phase.options} onPick={(i) => onPaste(phase.text, i)} />
       ) : (
         <>
           <div className="flex items-center px-5 py-2 border-b border-[var(--line)] bg-[var(--board)]">

@@ -85,12 +85,7 @@ describe("corpus: every goldened fixture parses exactly", () => {
     expect(traceErrors(traces[0], want)).toEqual([]);
   });
 
-  it("covers all 31 goldened fixtures", () => {
-    expect(goldened).toHaveLength(31);
-  });
-
-  it("17-py-pytest-default is a documented extraction gap (no anchors)", () => {
-    const text = fs.readFileSync(path.join(DIR, "17-py-pytest-default.txt"), "utf8");
-    expect(extractTraces(text)).toHaveLength(0);
+  it("covers all 32 fixtures — no gaps left", () => {
+    expect(goldened).toHaveLength(32);
   });
 });

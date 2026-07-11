@@ -3,15 +3,61 @@
 import path from "node:path";
 import { SEARCHED_ANCHORS, extractTraces } from "./extract/index.js";
 import { buildGraph } from "./graph/build.js";
+import { loadTsconfigPaths } from "./graph/tsconfig.js";
 import type { TraceGraph } from "./graph/types.js";
 import { resolveTrace } from "./resolve/index.js";
 import { buildRepoIndex } from "./resolve/repo.js";
+import { applySourcemaps } from "./sourcemap/index.js";
 
 export type PipelineResult =
   | { ok: true; graph: TraceGraph }
   | { ok: false; exitCode: 2 | 3; message: string };
 
-export async function runPipeline(text: string, repoRoot: string): Promise<PipelineResult> {
+export interface TraceSummary {
+  /** index into the extracted-trace list — pass as `pick` */
+  index: number;
+  language: string;
+  exceptionType: string;
+  message: string;
+  frameCount: number;
+  /** identical signatures deduped into one entry (§5.1.4) */
+  count: number;
+}
+
+/** Distinct traces in a blob, deduped by exception signature (§5.1.4). */
+export function listTraces(text: string): TraceSummary[] {
+  const traces = extractTraces(text);
+  const bySignature = new Map<string, TraceSummary>();
+  traces.forEach((trace, index) => {
+    const crash = trace.frames[trace.frames.length - 1];
+    const signature = `${trace.language}:${trace.exception.type}:${crash?.rawPath ?? ""}:${crash?.line ?? ""}`;
+    const existing = bySignature.get(signature);
+    if (existing) {
+      existing.count++;
+      return;
+    }
+    bySignature.set(signature, {
+      index,
+      language: trace.language,
+      exceptionType: trace.exception.type,
+      message: firstLine(trace.exception.message),
+      frameCount: trace.frames.length,
+      count: 1,
+    });
+  });
+  return [...bySignature.values()];
+}
+
+function firstLine(s: string): string {
+  const nl = s.indexOf("\n");
+  return nl === -1 ? s : s.slice(0, nl);
+}
+
+export async function runPipeline(
+  text: string,
+  repoRoot: string,
+  options: { pick?: number; repoLabel?: string } = {},
+): Promise<PipelineResult> {
   const traces = extractTraces(text);
   if (traces.length === 0) {
     return {
@@ -22,13 +68,15 @@ export async function runPipeline(text: string, repoRoot: string): Promise<Pipel
       )}\nIf your trace is in an unusual format, please file it as an issue — it becomes a fixture.`,
     };
   }
-  const trace = traces[0]; // multi-trace picker arrives in Phase 2 (§5.1.4)
+  const trace = traces[options.pick ?? 0] ?? traces[0];
 
   const index = buildRepoIndex(repoRoot);
+  await applySourcemaps(trace, index); // §5.3: rewrite generated-file frames in place
   const { resolved, analyses } = await resolveTrace(trace, index);
   const graph = buildGraph(trace, resolved, analyses, {
-    repo: path.basename(path.resolve(repoRoot)),
+    repo: options.repoLabel ?? path.basename(path.resolve(repoRoot)),
     language: trace.language,
+    pathAliases: loadTsconfigPaths(path.resolve(repoRoot)),
   });
 
   if (graph.meta.resolvedFrames === 0) {

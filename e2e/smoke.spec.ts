@@ -8,16 +8,19 @@ const ROOT = fileURLToPath(new URL("..", import.meta.url));
 let child: ChildProcess;
 let url: string;
 
-test.beforeAll(async () => {
-  execSync("npx tsc -p tsconfig.json", { cwd: ROOT, stdio: "pipe" });
-  child = spawn(process.execPath, [path.join(ROOT, "dist/cli/index.js"), "demo", "--no-open"], {
-    cwd: ROOT,
-    stdio: ["ignore", "pipe", "pipe"],
-  });
-  url = await new Promise<string>((resolve, reject) => {
+function spawnDemo(flavor: string): ChildProcess {
+  return spawn(
+    process.execPath,
+    [path.join(ROOT, "dist/cli/index.js"), "demo", flavor, "--no-open"],
+    { cwd: ROOT, stdio: ["ignore", "pipe", "pipe"] },
+  );
+}
+
+function waitForUrl(proc: ChildProcess): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error("demo server did not start")), 10_000);
     let buffer = "";
-    child.stdout?.on("data", (chunk: Buffer) => {
+    proc.stdout?.on("data", (chunk: Buffer) => {
       buffer += chunk.toString();
       const m = buffer.match(/crashpath: (http:\/\/127\.0\.0\.1:\d+)/);
       if (m) {
@@ -26,6 +29,12 @@ test.beforeAll(async () => {
       }
     });
   });
+}
+
+test.beforeAll(async () => {
+  execSync("npx tsc -p tsconfig.json", { cwd: ROOT, stdio: "pipe" });
+  child = spawnDemo("python");
+  url = await waitForUrl(child);
 });
 
 test.afterAll(() => {
@@ -53,4 +62,19 @@ test("demo renders the spine, legend, and code panel", async ({ page }) => {
   // keyboard: ← walks the spine
   await page.keyboard.press("ArrowLeft");
   await expect(page.locator("[data-panel]")).toContainText("collapsed frames");
+});
+
+test("demo node maps minified frames back to TS sources", async ({ page }) => {
+  const nodeChild = spawnDemo("node");
+  try {
+    const nodeUrl = await waitForUrl(nodeChild);
+    await page.goto(nodeUrl);
+
+    // crash node pre-selected: original TS file, sourcemap badge, real source
+    await expect(page.locator("[data-panel]")).toContainText("pricing.ts");
+    await expect(page.locator("[data-panel]")).toContainText("via-sourcemap");
+    await expect(page.locator("[data-snippet]")).toContainText("RangeError");
+  } finally {
+    nodeChild.kill();
+  }
 });
