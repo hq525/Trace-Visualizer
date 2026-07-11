@@ -50,12 +50,14 @@ async function main(): Promise<void> {
   let text: string | null = null;
   if (subcommand === "demo") {
     const flavor = positionals[1] ?? "python";
-    if (flavor !== "python") {
-      process.stderr.write(`crashpath demo: unknown flavor '${flavor}' (available: python)\n`);
+    if (flavor !== "python" && flavor !== "node") {
+      process.stderr.write(
+        `crashpath demo: unknown flavor '${flavor}' (available: python, node)\n`,
+      );
       process.exitCode = 1;
       return;
     }
-    repoRoot = fileURLToPath(new URL("../../demo/python", import.meta.url));
+    repoRoot = fileURLToPath(new URL(`../../demo/${flavor}`, import.meta.url));
     text = fs.readFileSync(path.join(repoRoot, "trace.txt"), "utf8");
   } else if (values.trace) {
     text = fs.readFileSync(values.trace, "utf8");
