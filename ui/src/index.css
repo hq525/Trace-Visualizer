@@ -150,6 +150,17 @@ svg text {
   font-size: 10px;
 }
 
+/* chained-exception rows (§5.11) */
+.chain-connector line {
+  stroke: var(--line);
+  stroke-dasharray: 2 4;
+}
+.chain-connector text {
+  fill: var(--muted);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
 .edge-trace.draw {
   stroke-dasharray: 300;
   stroke-dashoffset: 300;

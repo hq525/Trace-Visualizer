@@ -1,4 +1,4 @@
-import type { Layout, PlacedNode } from "../layout.js";
+import { type Layout, MARGIN_X, type PlacedNode } from "../layout.js";
 
 export function GraphView({
   layout,
@@ -60,8 +60,16 @@ export function GraphView({
       {crash && (
         <circle className="pulse" cx={crash.x + crash.w / 2} cy={crash.y + crash.h / 2} r={40} />
       )}
-      {layout.nodes.map((p) => (
-        <g key={p.node.id} style={dimmed(ghostEndpoints.has(p.node.id))}>
+      {layout.connectors.map((c) => (
+        <g key={`${c.x}:${c.y}`} className="chain-connector">
+          <line x1={c.x} y1={c.y} x2={layout.width - MARGIN_X} y2={c.y} />
+          <text x={c.x} y={c.y - 7}>
+            ↳ {c.label}
+          </text>
+        </g>
+      ))}
+      {layout.nodes.map((p, i) => (
+        <g key={`${p.node.id}:${i}`} style={dimmed(ghostEndpoints.has(p.node.id))}>
           <Node placed={p} selected={p.node.id === selectedId} onSelect={onSelect} />
         </g>
       ))}

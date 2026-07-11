@@ -159,10 +159,7 @@ export function App() {
               )}
             </div>
             {phase.kind === "graph" && (
-              <SidePanel
-                graph={phase.graph}
-                node={phase.graph.nodes.find((n) => n.id === selectedId) ?? null}
-              />
+              <SidePanel graph={phase.graph} node={findNode(phase.graph, selectedId)} />
             )}
           </main>
         </>
@@ -184,4 +181,16 @@ export function App() {
 function firstLine(s: string): string {
   const nl = s.indexOf("\n");
   return nl === -1 ? s : `${s.slice(0, nl)} …`;
+}
+
+/** node lookup across the top-level graph and chained rows (§5.11) */
+function findNode(graph: TraceGraph, id: string | null) {
+  if (!id) return null;
+  const direct = graph.nodes.find((n) => n.id === id);
+  if (direct) return direct;
+  for (const c of graph.chained ?? []) {
+    const hit = c.graph.nodes.find((n) => n.id === id);
+    if (hit) return hit;
+  }
+  return null;
 }
