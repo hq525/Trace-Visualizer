@@ -21,9 +21,11 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.13.0",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "hono": "^4.6.0",
     "source-map-js": "^1.2.1",
-    "web-tree-sitter": "0.20.8"
+    "web-tree-sitter": "0.20.8",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
