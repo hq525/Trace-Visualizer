@@ -10,7 +10,11 @@
   "bin": {
     "crashpath": "./dist/cli/index.js"
   },
-  "files": ["dist", "grammars", "demo"],
+  "files": [
+    "dist",
+    "grammars",
+    "demo"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json && npm --prefix ui run build",
     "e2e": "playwright test",
@@ -22,6 +26,7 @@
   "dependencies": {
     "@hono/node-server": "^1.13.0",
     "hono": "^4.6.0",
+    "source-map-js": "^1.2.1",
     "web-tree-sitter": "0.20.8"
   },
   "devDependencies": {
