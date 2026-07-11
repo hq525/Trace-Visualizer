@@ -106,6 +106,11 @@ export function App() {
           </div>
         )}
         <div className="flex-1" />
+        {phase.kind === "graph" && phase.graph.meta.ref && (
+          <span className="mono rounded-full border border-[#4b3f77] px-3 py-1 text-[12px] text-[var(--ghost)]">
+            @ {phase.graph.meta.ref}
+          </span>
+        )}
         {phase.kind === "graph" && (
           <span className="mono text-[12px] text-[var(--muted)] border border-[var(--line)] rounded-full px-3 py-1">
             {phase.graph.meta.repo} · {phase.graph.meta.resolvedFrames}/

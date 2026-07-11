@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
+import { addRefWorktree } from "../gitref/index.js";
 import type { TraceGraph } from "../graph/types.js";
 import { runPipeline } from "../pipeline.js";
 import { startServer } from "../server/index.js";
@@ -32,6 +33,7 @@ async function main(): Promise<void> {
     options: {
       trace: { type: "string", short: "t" },
       repo: { type: "string", short: "r" },
+      ref: { type: "string" },
       json: { type: "boolean", default: false },
       port: { type: "string" },
       "no-open": { type: "boolean", default: false },
@@ -67,11 +69,34 @@ async function main(): Promise<void> {
     text = await readStdin();
   }
 
+  // --ref: swap the repo root for a detached worktree of the crashed version
+  // (§5.10); it lives until the process exits
+  let refCleanup: (() => void) | undefined;
+  if (values.ref) {
+    try {
+      const worktree = addRefWorktree(repoRoot, values.ref);
+      repoRoot = worktree.root;
+      refCleanup = worktree.cleanup;
+      process.once("SIGINT", () => {
+        refCleanup?.();
+        process.exit(130);
+      });
+      process.once("exit", () => refCleanup?.());
+    } catch (err) {
+      process.stderr.write(`${err instanceof Error ? err.message : String(err)}\n`);
+      process.exitCode = 1;
+      return;
+    }
+  }
+
   // paste mode: no input → start the server with an empty graph; the UI shows
   // the paste box and POSTs to /api/trace
   let initialGraph: TraceGraph | undefined;
   if (text !== null) {
-    const result = await runPipeline(text, repoRoot, repoLabel ? { repoLabel } : {});
+    const result = await runPipeline(text, repoRoot, {
+      ...(repoLabel ? { repoLabel } : {}),
+      ...(values.ref ? { ref: values.ref } : {}),
+    });
     if (!result.ok) {
       process.stderr.write(`${result.message}\n`);
       process.exitCode = result.exitCode;
@@ -79,6 +104,7 @@ async function main(): Promise<void> {
     }
     if (values.json) {
       process.stdout.write(`${JSON.stringify(result.graph, null, 2)}\n`);
+      refCleanup?.();
       return;
     }
     initialGraph = result.graph;

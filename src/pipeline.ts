@@ -57,7 +57,7 @@ function firstLine(s: string): string {
 export async function runPipeline(
   text: string,
   repoRoot: string,
-  options: { pick?: number; repoLabel?: string } = {},
+  options: { pick?: number; repoLabel?: string; ref?: string } = {},
 ): Promise<PipelineResult> {
   const traces = extractTraces(text);
   if (traces.length === 0) {
@@ -84,6 +84,7 @@ export async function runPipeline(
       repo: options.repoLabel ?? path.basename(path.resolve(repoRoot)),
       language: trace.language,
       pathAliases,
+      ...(options.ref ? { ref: options.ref } : {}),
     },
     radius,
   );
