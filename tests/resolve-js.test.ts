@@ -4,7 +4,7 @@ import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import type { Frame, ParsedTrace } from "../src/parsers/types.js";
 import { resolveTrace } from "../src/resolve/index.js";
-import { buildRepoIndex, type RepoIndex } from "../src/resolve/repo.js";
+import { type RepoIndex, buildRepoIndex } from "../src/resolve/repo.js";
 
 const SOURCE = `import { helper as h } from "./util";
 
@@ -57,7 +57,9 @@ function traceWith(frames: Frame[]): ParsedTrace {
 describe("js frame → symbol resolution (§5.5)", () => {
   it("resolves dotted method symbols to class-qualified functions", async () => {
     const { resolved } = await resolveTrace(
-      traceWith([frame({ rawPath: "/prod/app/src/ledger.ts", line: 12, symbol: "LedgerStore.append" })]),
+      traceWith([
+        frame({ rawPath: "/prod/app/src/ledger.ts", line: 12, symbol: "LedgerStore.append" }),
+      ]),
       index,
     );
     expect(resolved[0].symbol?.qualifiedName).toBe("LedgerStore.append");

@@ -6,6 +6,7 @@ import { buildGraph } from "./graph/build.js";
 import type { TraceGraph } from "./graph/types.js";
 import { resolveTrace } from "./resolve/index.js";
 import { buildRepoIndex } from "./resolve/repo.js";
+import { applySourcemaps } from "./sourcemap/index.js";
 
 export type PipelineResult =
   | { ok: true; graph: TraceGraph }
@@ -25,6 +26,7 @@ export async function runPipeline(text: string, repoRoot: string): Promise<Pipel
   const trace = traces[0]; // multi-trace picker arrives in Phase 2 (§5.1.4)
 
   const index = buildRepoIndex(repoRoot);
+  await applySourcemaps(trace, index); // §5.3: rewrite generated-file frames in place
   const { resolved, analyses } = await resolveTrace(trace, index);
   const graph = buildGraph(trace, resolved, analyses, {
     repo: path.basename(path.resolve(repoRoot)),

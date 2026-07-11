@@ -63,6 +63,8 @@ async function resolveFrame(
   if (!match.file) return base;
   base.file = match.file;
   if (match.ambiguous) base.badges.push("ambiguous-path");
+  if (frame.mappedFrom) base.badges.push("via-sourcemap");
+  if (frame.noSourcemap) base.badges.push("no-sourcemap");
 
   const analysis = await analyzeFile(index.root, match.file, analyses);
   if (!analysis || analysis.skipped) return base;

@@ -80,7 +80,7 @@ function walk(node: Parser.SyntaxNode, ctx: Ctx, out: FileAnalysis): void {
         const nameNode =
           node.type === "pair"
             ? node.childForFieldName("key")
-            : node.childForFieldName("name") ?? node.childForFieldName("property");
+            : (node.childForFieldName("name") ?? node.childForFieldName("property"));
         const name = nameNode?.text;
         if (name) {
           emitFunction(name, value, ctx, out);
@@ -156,12 +156,7 @@ function walk(node: Parser.SyntaxNode, ctx: Ctx, out: FileAnalysis): void {
   for (const child of node.namedChildren) walk(child, ctx, out);
 }
 
-function emitFunction(
-  name: string,
-  fnNode: Parser.SyntaxNode,
-  ctx: Ctx,
-  out: FileAnalysis,
-): void {
+function emitFunction(name: string, fnNode: Parser.SyntaxNode, ctx: Ctx, out: FileAnalysis): void {
   out.symbols.push({
     name,
     qualifiedName: [...ctx.classes, name].join("."),
@@ -177,12 +172,7 @@ function recurseBody(node: Parser.SyntaxNode, ctx: Ctx, out: FileAnalysis): void
   for (const child of body.namedChildren) walk(child, ctx, out);
 }
 
-function pushCall(
-  calleeName: string,
-  node: Parser.SyntaxNode,
-  ctx: Ctx,
-  out: FileAnalysis,
-): void {
+function pushCall(calleeName: string, node: Parser.SyntaxNode, ctx: Ctx, out: FileAnalysis): void {
   const site: CallSite = { calleeName, line: line1(node) };
   const enclosing = ctx.fns[ctx.fns.length - 1];
   if (enclosing) site.enclosing = enclosing;
